@@ -1,29 +1,40 @@
-const BASE = 'https://api.apify.com/v2';
-const ACTOR_ID = 'compass~crawler-google-places';
+import type { ApifyRunResult, RunStatus } from './types';
 
-export async function startRun(
+const BASE = 'https://api.apify.com/v2';
+const ACTOR_ID = 'compass~google-maps-extractor';
+
+interface ApifyRunData {
+  id: string;
+  status: string;
+  defaultDatasetId: string;
+  stats?: { itemCount?: number };
+}
+
+function parseRunPayload(json: unknown): ApifyRunData {
+  const wrapped = json as { data?: ApifyRunData };
+  const data = wrapped.data ?? (json as ApifyRunData);
+  if (!data?.id) {
+    throw new Error('Invalid Apify run response');
+  }
+  return data;
+}
+
+export async function startScrape(
   searchString: string,
   maxResults: number,
   language: string,
   token: string
-): Promise<{ runId: string; datasetId: string; status: string }> {
-  const body = {
-    searchStringsArray: [searchString],
-    maxCrawledPlacesPerSearch: maxResults,
-    language,
-    maxImages: 0,
-    exportPlaceUrls: false,
-    additionalInfo: false,
-    scrapeDirectories: false,
-  };
+): Promise<ApifyRunResult> {
+  const url = `${BASE}/acts/${ACTOR_ID}/runs?token=${token}`;
 
-  const res = await fetch(`${BASE}/acts/${ACTOR_ID}/runs`, {
+  const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      searchStringsArray: [searchString],
+      maxCrawledPlacesPerSearch: maxResults,
+      language,
+    }),
   });
 
   if (!res.ok) {
@@ -31,19 +42,23 @@ export async function startRun(
     throw new Error(`Apify error ${res.status}: ${text}`);
   }
 
-  const { data } = await res.json() as { data: { id: string; defaultDatasetId: string; status: string } };
-  return { runId: data.id, datasetId: data.defaultDatasetId, status: data.status };
+  const data = parseRunPayload(await res.json());
+  return {
+    runId: data.id,
+    datasetId: data.defaultDatasetId,
+    status: data.status,
+  };
 }
 
-export async function getRunStatus(
-  runId: string,
-  token: string
-): Promise<{ status: string; itemCount: number; datasetId: string }> {
-  const res = await fetch(`${BASE}/actor-runs/${runId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error(`Status check failed: ${res.status}`);
-  const { data } = await res.json() as { data: { status: string; stats: { itemCount?: number }; defaultDatasetId: string } };
+export async function getRunStatus(runId: string, token: string): Promise<RunStatus> {
+  const res = await fetch(`${BASE}/actor-runs/${runId}?token=${token}`);
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Apify error ${res.status}: ${text}`);
+  }
+
+  const data = parseRunPayload(await res.json());
   return {
     status: data.status,
     itemCount: data.stats?.itemCount ?? 0,
@@ -51,22 +66,22 @@ export async function getRunStatus(
   };
 }
 
-export async function getDatasetItems(datasetId: string, token: string): Promise<unknown[]> {
-  const res = await fetch(
-    `${BASE}/datasets/${datasetId}/items?clean=true&format=json&limit=2000`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  if (!res.ok) throw new Error(`Dataset fetch failed: ${res.status}`);
-  return res.json() as Promise<unknown[]>;
+export async function getDatasetItems(
+  datasetId: string,
+  token: string
+): Promise<Record<string, unknown>[]> {
+  const res = await fetch(`${BASE}/datasets/${datasetId}/items?token=${token}`);
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Apify error ${res.status}: ${text}`);
+  }
+
+  const items = await res.json();
+  return Array.isArray(items) ? items : [];
 }
 
 export async function testToken(token: string): Promise<boolean> {
-  try {
-    const res = await fetch(`${BASE}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  const res = await fetch(`${BASE}/users/me?token=${token}`);
+  return res.ok;
 }

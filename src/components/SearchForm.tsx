@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 
-type Status = 'idle' | 'starting' | 'polling' | 'collecting' | 'done' | 'error';
+type Status = 'idle' | 'scraping' | 'done' | 'error';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -16,21 +16,22 @@ const LANGUAGES = [
   { code: 'ar', label: 'Arabic' },
 ];
 
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
 const statusMeta: Record<Status, { color: string; icon: string; bg: string; border: string }> = {
-  idle:       { color: '', icon: '', bg: '', border: '' },
-  starting:   { color: 'text-indigo-400', icon: '◌', bg: 'bg-indigo-500/5', border: 'border-indigo-500/15' },
-  polling:    { color: 'text-indigo-400', icon: '◉', bg: 'bg-indigo-500/5', border: 'border-indigo-500/15' },
-  collecting: { color: 'text-violet-400', icon: '◈', bg: 'bg-violet-500/5', border: 'border-violet-500/15' },
-  done:       { color: 'text-emerald-400', icon: '✓', bg: 'bg-emerald-500/5', border: 'border-emerald-500/15' },
-  error:      { color: 'text-red-400', icon: '✕', bg: 'bg-red-500/5', border: 'border-red-500/15' },
+  idle:     { color: '', icon: '', bg: '', border: '' },
+  scraping: { color: 'text-blue-700', icon: '◌', bg: 'bg-blue-50', border: 'border-blue-200' },
+  done:     { color: 'text-emerald-700', icon: '✓', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  error:    { color: 'text-red-700', icon: '✕', bg: 'bg-red-50', border: 'border-red-200' },
 };
 
-const inputClass = 'w-full bg-zinc-900/60 border border-white/8 text-white placeholder-zinc-600 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/20 disabled:opacity-40 transition-all';
-const labelClass = 'block text-xs font-medium text-zinc-400 mb-1.5';
+const inputClass =
+  'w-full bg-white border border-[#ebebeb] text-[#171717] placeholder-[#888888] rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#171717] focus:ring-1 focus:ring-[#171717]/10 disabled:opacity-40 disabled:bg-[#fafafa] transition-all';
+const labelClass = 'block text-xs font-medium text-[#4d4d4d] mb-1.5';
+
+const TERMINAL_STATUSES = new Set(['SUCCEEDED', 'FAILED', 'ABORTED', 'TIMED-OUT']);
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default function SearchForm() {
   const [keyword, setKeyword] = useState('');
@@ -41,16 +42,19 @@ export default function SearchForm() {
   const [message, setMessage] = useState('');
   const [count, setCount] = useState(0);
 
-  const isLoading = status === 'starting' || status === 'polling' || status === 'collecting';
+  const isLoading = status === 'scraping';
   const meta = statusMeta[status];
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit() {
     if (!keyword.trim()) return;
 
-    setStatus('starting');
-    setMessage('Connecting to Apify...');
+    setStatus('scraping');
+    setMessage('Starting Google Maps scrape...');
     setCount(0);
+
+    const searchString = location.trim()
+      ? `${keyword.trim()} in ${location.trim()}`
+      : keyword.trim();
 
     try {
       const startRes = await fetch('/api/scrape', {
@@ -59,61 +63,92 @@ export default function SearchForm() {
         body: JSON.stringify({ keyword, location, maxResults, language }),
       });
 
-      const startData = await startRes.json() as { runId?: string; datasetId?: string; error?: string };
+      const startData = await startRes.json() as {
+        runId?: string;
+        datasetId?: string;
+        query?: string;
+        error?: string;
+      };
 
       if (!startRes.ok) {
         throw new Error(startData.error ?? 'Failed to start scrape');
       }
 
-      const { runId, datasetId } = startData as { runId: string; datasetId: string };
-      setStatus('polling');
-      setMessage('Scraping Google Maps...');
+      const runId = startData.runId;
+      const datasetId = startData.datasetId;
+      const query = startData.query ?? searchString;
+
+      if (!runId || !datasetId) {
+        throw new Error('Invalid scrape response from server');
+      }
 
       let runStatus = 'RUNNING';
-      while (runStatus === 'RUNNING' || runStatus === 'READY') {
-        await sleep(4000);
-        const statusRes = await fetch(`/api/status?runId=${runId}`);
-        const statusData = await statusRes.json() as { status: string; itemCount: number };
-        runStatus = statusData.status;
-        if (statusData.itemCount > 0) {
-          setMessage(`Scraping Google Maps... (${statusData.itemCount} results so far)`);
+      let itemCount = 0;
+
+      while (!TERMINAL_STATUSES.has(runStatus)) {
+        await sleep(3000);
+        const statusRes = await fetch(`/api/status?runId=${encodeURIComponent(runId)}`);
+        const statusData = await statusRes.json() as {
+          status?: string;
+          itemCount?: number;
+          error?: string;
+        };
+
+        if (!statusRes.ok) {
+          throw new Error(statusData.error ?? 'Failed to check scrape status');
         }
+
+        runStatus = statusData.status ?? 'RUNNING';
+        itemCount = statusData.itemCount ?? 0;
+        setMessage(
+          itemCount > 0
+            ? `Scraping Google Maps... ${itemCount} places found so far.`
+            : 'Scraping Google Maps... this may take 1–2 minutes, please wait.'
+        );
       }
 
       if (runStatus !== 'SUCCEEDED') {
-        throw new Error(`Run ended with status: ${runStatus}`);
+        throw new Error(`Scrape ${runStatus.toLowerCase().replace('_', ' ')}`);
       }
 
-      setStatus('collecting');
-      setMessage('Saving leads to database...');
+      setMessage('Saving leads to your database...');
 
-      const query = location ? `${keyword} in ${location}` : keyword;
       const collectRes = await fetch(
-        `/api/collect?runId=${runId}&datasetId=${encodeURIComponent(datasetId)}&query=${encodeURIComponent(query)}`
+        `/api/collect?datasetId=${encodeURIComponent(datasetId)}&query=${encodeURIComponent(query)}`
       );
-      const collectData = await collectRes.json() as { count?: number; error?: string };
+      const collectData = await collectRes.json() as { count?: number; total?: number; error?: string };
 
-      if (!collectRes.ok) throw new Error(collectData.error ?? 'Failed to collect results');
+      if (!collectRes.ok) {
+        throw new Error(collectData.error ?? 'Failed to save leads');
+      }
 
       const saved = collectData.count ?? 0;
+      const total = collectData.total ?? 0;
       setCount(saved);
       setStatus('done');
-      setMessage(`Done! Saved ${saved} new leads to your database.`);
+
+      if (total === 0) {
+        setMessage('No results found. Try a different keyword or location.');
+      } else if (saved === 0) {
+        setMessage(`${total} leads found, but all were already in your database.`);
+      } else {
+        setMessage(`Saved ${saved} new leads. Redirecting to results…`);
+        setTimeout(() => { window.location.href = '/results'; }, 1500);
+      }
     } catch (err) {
       setStatus('error');
-      setMessage(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setMessage(err instanceof Error ? err.message : 'An unexpected error occurred.');
     }
   }
 
   return (
     <div className="space-y-5">
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={(e) => { e.preventDefault(); void handleSubmit(); }} className="space-y-5">
 
-        {/* Keyword + Location */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>
-              Keyword <span className="text-indigo-400">*</span>
+              Keyword <span className="text-[#0070f3]">*</span>
             </label>
             <input
               type="text"
@@ -138,12 +173,11 @@ export default function SearchForm() {
           </div>
         </div>
 
-        {/* Max results + Language */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className={labelClass.replace(' mb-1.5', '')}>Max Results</label>
-              <span className="text-sm font-semibold text-white tabular-nums">{maxResults}</span>
+              <label className="text-xs font-medium text-[#4d4d4d]">Max Results</label>
+              <span className="text-sm font-semibold text-[#171717] tabular-nums">{maxResults}</span>
             </div>
             <input
               type="range"
@@ -153,9 +187,9 @@ export default function SearchForm() {
               value={maxResults}
               onChange={(e) => setMaxResults(Number(e.target.value))}
               disabled={isLoading}
-              className="w-full accent-indigo-500 disabled:opacity-40 mt-2"
+              className="w-full accent-[#171717] disabled:opacity-40 mt-2"
             />
-            <div className="flex justify-between text-[10px] text-zinc-700 font-mono mt-1">
+            <div className="flex justify-between text-[10px] text-[#888888] font-mono mt-1">
               <span>10</span>
               <span>500</span>
             </div>
@@ -167,10 +201,9 @@ export default function SearchForm() {
               onChange={(e) => setLanguage(e.target.value)}
               disabled={isLoading}
               className={inputClass + ' cursor-pointer'}
-              style={{ colorScheme: 'dark' }}
             >
               {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code} className="bg-zinc-900">
+                <option key={l.code} value={l.code}>
                   {l.label}
                 </option>
               ))}
@@ -178,16 +211,15 @@ export default function SearchForm() {
           </div>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isLoading || !keyword.trim()}
-          className="w-full flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-medium transition-all bg-white text-black hover:bg-zinc-100 disabled:bg-white/8 disabled:text-zinc-600 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 h-11 rounded-md text-sm font-medium transition-all bg-[#171717] text-white hover:bg-[#2d2d2d] disabled:bg-[#f5f5f5] disabled:text-[#888888] disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
               <span className="animate-spin text-base leading-none">◌</span>
-              Processing...
+              Scraping... please wait
             </>
           ) : (
             <>
@@ -201,9 +233,8 @@ export default function SearchForm() {
         </button>
       </form>
 
-      {/* Status */}
       {status !== 'idle' && (
-        <div className={`rounded-xl border p-4 flex items-start gap-3 ${meta.bg} ${meta.border}`}>
+        <div className={`rounded-md border p-4 flex items-start gap-3 ${meta.bg} ${meta.border}`}>
           <span className={`text-lg leading-none mt-0.5 shrink-0 ${meta.color} ${isLoading ? 'animate-spin' : ''}`}>
             {meta.icon}
           </span>
@@ -212,7 +243,7 @@ export default function SearchForm() {
             {status === 'done' && count > 0 && (
               <a
                 href="/results"
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition-colors no-underline"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#0070f3] hover:text-[#0761d1] transition-colors no-underline"
               >
                 View all leads
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

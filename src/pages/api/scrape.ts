@@ -1,15 +1,19 @@
 import type { APIRoute } from 'astro';
-import { startRun } from '../../lib/apify';
+import { requireAuth } from '../../lib/auth';
+import { startScrape } from '../../lib/apify';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  const auth = requireAuth(context);
+  if ('error' in auth) return auth.error;
+
   const token = import.meta.env.APIFY_API_TOKEN as string | undefined;
   if (!token) {
-    return json({ error: 'APIFY_API_TOKEN is not configured. Add it to your .env file.' }, 503);
+    return json({ error: 'APIFY_API_TOKEN is not configured.' }, 503);
   }
 
   let body: { keyword?: string; location?: string; maxResults?: number; language?: string };
   try {
-    body = await request.json() as typeof body;
+    body = await context.request.json() as typeof body;
   } catch {
     return json({ error: 'Invalid JSON body' }, 400);
   }
@@ -23,11 +27,19 @@ export const POST: APIRoute = async ({ request }) => {
     ? `${keyword.trim()} in ${location.trim()}`
     : keyword.trim();
 
-  const clampedMax = Math.min(Math.max(Number(maxResults) || 50, 1), 1000);
+  const clampedMax = Math.min(Math.max(Number(maxResults) || 50, 1), 500);
 
   try {
-    const result = await startRun(searchString, clampedMax, language, token);
-    return json(result, 200);
+    const run = await startScrape(searchString, clampedMax, language, token);
+    return json(
+      {
+        runId: run.runId,
+        datasetId: run.datasetId,
+        status: run.status,
+        query: searchString,
+      },
+      200
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return json({ error: message }, 500);

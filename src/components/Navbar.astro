@@ -5,6 +5,7 @@ interface Props {
 
 const { variant = 'app' } = Astro.props;
 const path = Astro.url.pathname;
+const user = Astro.locals.user;
 
 const appNav = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -13,30 +14,28 @@ const appNav = [
 ];
 
 const landingNav = [
-  { href: '#features', label: 'Product' },
   { href: '#features', label: 'Features' },
   { href: '#pricing', label: 'Pricing' },
-  { href: '/dashboard', label: 'Dashboard' },
 ];
 
 const navLinks = variant === 'landing' ? landingNav : appNav;
 ---
 
-<header class="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a0a]/85 backdrop-blur-xl">
-  <div class="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between gap-6">
+<header class="sticky top-0 z-50 border-b border-[#ebebeb] bg-white/95 backdrop-blur-md">
+  <div class="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between gap-4">
 
     <!-- Logo -->
     <a href="/" class="flex items-center gap-2.5 no-underline shrink-0 group">
       <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a855f7 100%);">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
           <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" fill="white" fill-opacity="0.95"/>
           <circle cx="12" cy="10" r="3" fill="white" fill-opacity="0.45"/>
         </svg>
       </div>
-      <span class="font-semibold text-white text-sm tracking-tight group-hover:text-zinc-200 transition-colors">LeadScraper</span>
+      <span class="font-semibold text-[#171717] text-sm tracking-tight group-hover:text-[#4d4d4d] transition-colors">LeadScraper</span>
     </a>
 
-    <!-- Nav links -->
+    <!-- Nav links (desktop) -->
     <nav class="hidden md:flex items-center gap-0.5 flex-1 justify-center">
       {navLinks.map(({ href, label }) => {
         const active = variant === 'app' && (path === href || (href !== '/' && path.startsWith(href + '/')));
@@ -45,8 +44,8 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
             href={href}
             class={`px-3 py-1.5 rounded-full text-sm transition-all no-underline ${
               active
-                ? 'bg-white/10 text-white font-medium'
-                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                ? 'bg-[#f5f5f5] text-[#171717] font-medium'
+                : 'text-[#4d4d4d] hover:text-[#171717] hover:bg-[#f5f5f5]'
             }`}
           >
             {label}
@@ -57,32 +56,125 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
 
     <!-- CTAs -->
     <div class="flex items-center gap-2 shrink-0">
+      {variant === 'app' && (
+        <button
+          id="mobile-menu-btn"
+          type="button"
+          aria-label="Open menu"
+          aria-expanded="false"
+          class="md:hidden flex items-center justify-center w-8 h-8 rounded-md border border-[#ebebeb] bg-white text-[#171717] hover:bg-[#f5f5f5] transition-all cursor-pointer"
+        >
+          <svg id="mobile-menu-icon-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          <svg id="mobile-menu-icon-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      )}
+
       {variant === 'landing' ? (
         <>
-          <a
-            href="/dashboard"
-            class="hidden sm:flex items-center px-3.5 h-8 text-sm font-medium text-zinc-300 hover:text-white bg-white/5 hover:bg-white/8 rounded-lg border border-white/8 transition-all no-underline"
+          <button
+            id="nav-signin-btn"
+            class="hidden sm:flex items-center px-3.5 h-8 text-sm font-medium text-[#171717] bg-white hover:bg-[#f5f5f5] rounded-md border border-[#ebebeb] transition-all cursor-pointer"
           >
             Sign in
-          </a>
-          <a
-            href="/dashboard"
-            class="flex items-center gap-1.5 px-3.5 h-8 text-sm font-medium text-black bg-white hover:bg-zinc-100 rounded-lg transition-all no-underline"
+          </button>
+          <button
+            id="nav-signup-btn"
+            class="flex items-center gap-1.5 px-3.5 h-8 text-sm font-medium text-white bg-[#171717] hover:bg-[#2d2d2d] rounded-md transition-all cursor-pointer"
           >
             Get started
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
-          </a>
+          </button>
         </>
       ) : (
-        <a
-          href="/dashboard"
-          class="flex items-center gap-1.5 px-3.5 h-8 text-sm font-medium text-black bg-white hover:bg-zinc-100 rounded-lg transition-all no-underline"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          New search
-        </a>
+        <div class="flex items-center gap-3">
+          {user && (
+            <span class="hidden sm:block text-xs text-[#888888] max-w-[160px] truncate">
+              {user.email}
+            </span>
+          )}
+          <button
+            id="sign-out-btn"
+            class="flex items-center gap-1.5 px-3.5 h-8 text-sm font-medium text-[#171717] bg-white hover:bg-[#f5f5f5] rounded-md border border-[#ebebeb] transition-all cursor-pointer"
+          >
+            Sign out
+          </button>
+        </div>
       )}
     </div>
 
   </div>
+
+  {variant === 'app' && (
+    <nav
+      id="mobile-menu"
+      class="hidden md:hidden border-t border-[#ebebeb] bg-white px-6 py-3"
+    >
+      <div class="flex flex-col gap-1">
+        {appNav.map(({ href, label }) => {
+          const active = path === href || path.startsWith(href + '/');
+          return (
+            <a
+              href={href}
+              data-mobile-nav-link
+              class={`px-3 py-2.5 rounded-md text-sm transition-all no-underline ${
+                active
+                  ? 'bg-[#f5f5f5] text-[#171717] font-medium'
+                  : 'text-[#4d4d4d] hover:text-[#171717] hover:bg-[#f5f5f5]'
+              }`}
+            >
+              {label}
+            </a>
+          );
+        })}
+      </div>
+    </nav>
+  )}
 </header>
+
+<script>
+  import { createBrowserClient } from '@supabase/ssr'
+
+  document.getElementById('nav-signin-btn')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { tab: 'signin' } }))
+  })
+
+  document.getElementById('nav-signup-btn')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { tab: 'signup' } }))
+  })
+
+  document.getElementById('sign-out-btn')?.addEventListener('click', async () => {
+    const url = import.meta.env.PUBLIC_SUPABASE_URL
+    const key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    if (!url || !key) { window.location.href = '/'; return }
+    const supabase = createBrowserClient(url, key)
+    await supabase.auth.signOut()
+    window.location.href = '/'
+  })
+
+  const menuBtn = document.getElementById('mobile-menu-btn')
+  const mobileMenu = document.getElementById('mobile-menu')
+  const iconOpen = document.getElementById('mobile-menu-icon-open')
+  const iconClose = document.getElementById('mobile-menu-icon-close')
+
+  function setMobileMenuOpen(open: boolean) {
+    if (!mobileMenu || !menuBtn || !iconOpen || !iconClose) return
+    mobileMenu.classList.toggle('hidden', !open)
+    iconOpen.classList.toggle('hidden', open)
+    iconClose.classList.toggle('hidden', !open)
+    menuBtn.setAttribute('aria-expanded', String(open))
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu')
+  }
+
+  menuBtn?.addEventListener('click', () => {
+    const isOpen = mobileMenu && !mobileMenu.classList.contains('hidden')
+    setMobileMenuOpen(!isOpen)
+  })
+
+  document.querySelectorAll('[data-mobile-nav-link]').forEach((link) => {
+    link.addEventListener('click', () => setMobileMenuOpen(false))
+  })
+</script>

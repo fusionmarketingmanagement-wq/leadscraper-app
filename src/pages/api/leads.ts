@@ -1,9 +1,13 @@
 import type { APIRoute } from 'astro';
+import { requireAuth } from '../../lib/auth';
 import { readLeads, clearLeads } from '../../lib/db';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async (context) => {
+  const auth = requireAuth(context);
+  if ('error' in auth) return auth.error;
+
   try {
-    const leads = readLeads();
+    const leads = await readLeads(auth.supabase);
     return new Response(JSON.stringify(leads), {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -16,9 +20,12 @@ export const GET: APIRoute = async () => {
   }
 };
 
-export const DELETE: APIRoute = async () => {
+export const DELETE: APIRoute = async (context) => {
+  const auth = requireAuth(context);
+  if ('error' in auth) return auth.error;
+
   try {
-    clearLeads();
+    await clearLeads(auth.supabase);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { 'Content-Type': 'application/json' },
     });

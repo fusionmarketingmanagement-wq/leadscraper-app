@@ -2,9 +2,6 @@ import { useState, useEffect } from 'react';
 
 interface SettingsData {
   apifyConfigured: boolean;
-  googlePlacesConfigured: boolean;
-  hunterConfigured: boolean;
-  zeroBounceConfigured: boolean;
   leadsCount: number;
 }
 
@@ -20,44 +17,8 @@ const keyDefs = [
     configuredKey: 'apifyConfigured' as keyof SettingsData,
     testable: true,
     badge: 'Required',
-    badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
     iconPath: `<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>`,
-  },
-  {
-    id: 'google',
-    name: 'GOOGLE_PLACES_API_KEY',
-    label: 'Google Places API Key',
-    desc: 'Optional. Enriches leads with additional Google Places data.',
-    docsUrl: 'console.cloud.google.com/apis',
-    configuredKey: 'googlePlacesConfigured' as keyof SettingsData,
-    testable: false,
-    badge: 'Optional',
-    badgeColor: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-    iconPath: `<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>`,
-  },
-  {
-    id: 'hunter',
-    name: 'HUNTER_API_KEY',
-    label: 'Hunter.io API Key',
-    desc: 'Optional. Finds professional email addresses for scraped leads.',
-    docsUrl: 'hunter.io/api-keys',
-    configuredKey: 'hunterConfigured' as keyof SettingsData,
-    testable: false,
-    badge: 'Optional',
-    badgeColor: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-    iconPath: `<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>`,
-  },
-  {
-    id: 'zerobounce',
-    name: 'ZEROBOUNCE_API_KEY',
-    label: 'ZeroBounce API Key',
-    desc: 'Optional. Verifies email addresses to reduce bounce rates.',
-    docsUrl: 'app.zerobounce.net/members/api',
-    configuredKey: 'zeroBounceConfigured' as keyof SettingsData,
-    testable: false,
-    badge: 'Optional',
-    badgeColor: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-    iconPath: `<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>`,
   },
 ];
 
@@ -66,11 +27,11 @@ function StatusBadge({ configured }: { configured: boolean }) {
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
         configured
-          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-          : 'bg-zinc-800/60 text-zinc-500 border-zinc-700/50'
+          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+          : 'bg-[#f5f5f5] text-[#888888] border-[#ebebeb]'
       }`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${configured ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${configured ? 'bg-emerald-500' : 'bg-[#a1a1a1]'}`} />
       {configured ? 'Configured' : 'Not set'}
     </span>
   );
@@ -88,7 +49,7 @@ export default function SettingsPanel() {
       .then((r) => r.json())
       .then((d) => setData(d as SettingsData))
       .catch(() =>
-        setData({ apifyConfigured: false, googlePlacesConfigured: false, hunterConfigured: false, zeroBounceConfigured: false, leadsCount: 0 })
+        setData({ apifyConfigured: false, leadsCount: 0 })
       );
   }, []);
 
@@ -125,7 +86,7 @@ export default function SettingsPanel() {
 
   if (!data) {
     return (
-      <div className="flex items-center gap-2 text-zinc-600 text-sm py-12">
+      <div className="flex items-center gap-2 text-[#888888] text-sm py-12">
         <span className="animate-spin text-base">◌</span>
         Loading settings...
       </div>
@@ -138,68 +99,66 @@ export default function SettingsPanel() {
     <div className="space-y-4">
 
       {/* API Keys section */}
-      <div className="rounded-2xl border border-white/8 bg-zinc-900/40 overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/5">
-          <h2 className="text-sm font-semibold text-white">API Keys</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+      <div
+        className="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
+        style={{ boxShadow: '0px 1px 1px #00000005, 0px 2px 2px #0000000a' }}
+      >
+        <div className="px-6 py-5 border-b border-[#ebebeb]">
+          <h2 className="text-sm font-semibold text-[#171717]">API Keys</h2>
+          <p className="text-xs text-[#888888] mt-0.5">
             Managed via your{' '}
-            <code className="text-zinc-400 bg-white/5 px-1.5 py-0.5 rounded text-[11px]">.env</code>{' '}
+            <code className="text-[#171717] bg-[#f5f5f5] px-1.5 py-0.5 rounded text-[11px] border border-[#ebebeb]">.env</code>{' '}
             file. Keys are never exposed to the browser.
           </p>
         </div>
 
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-[#ebebeb]">
           {keyDefs.map((key) => {
             const configured = Boolean(data[key.configuredKey]);
             return (
               <div key={key.id} className="px-6 py-5 flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4 min-w-0">
-                  {/* Icon */}
-                  <div className={`mt-0.5 w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
-                    configured ? 'border-emerald-500/20 bg-emerald-500/8' : 'border-white/8 bg-white/4'
+                  <div className={`mt-0.5 w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${
+                    configured ? 'border-emerald-200 bg-emerald-50' : 'border-[#ebebeb] bg-[#fafafa]'
                   }`}>
                     <svg
                       width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                      className={configured ? 'text-emerald-400' : 'text-zinc-500'}
+                      className={configured ? 'text-emerald-600' : 'text-[#a1a1a1]'}
                       dangerouslySetInnerHTML={{ __html: key.iconPath }}
                     />
                   </div>
-                  {/* Info */}
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                      <code className="text-sm font-medium text-white">{key.name}</code>
+                      <code className="text-sm font-medium text-[#171717]">{key.name}</code>
                       <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded border ${key.badgeColor}`}>
                         {key.badge}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-500 leading-relaxed">{key.desc}</p>
+                    <p className="text-xs text-[#888888] leading-relaxed">{key.desc}</p>
                     {!configured && (
-                      <p className="text-xs text-zinc-600 mt-1">
+                      <p className="text-xs text-[#a1a1a1] mt-1">
                         Get your key at{' '}
-                        <span className="text-indigo-400">{key.docsUrl}</span>
+                        <span className="text-[#0070f3]">{key.docsUrl}</span>
                       </p>
                     )}
                   </div>
                 </div>
 
-                {/* Right side */}
                 <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                   <StatusBadge configured={configured} />
                   {key.testable && configured && (
                     <button
                       onClick={handleTestToken}
                       disabled={testStatus === 'testing'}
-                      className="px-3 h-7 rounded-lg border border-white/8 bg-white/4 text-xs text-zinc-400 hover:text-white hover:bg-white/8 disabled:opacity-50 transition-all font-medium"
+                      className="px-3 h-7 rounded-md border border-[#ebebeb] bg-white text-xs text-[#4d4d4d] hover:text-[#171717] hover:border-[#a1a1a1] disabled:opacity-50 transition-all font-medium"
                     >
                       {testStatus === 'testing' ? (
                         <span className="flex items-center gap-1"><span className="animate-spin">◌</span> Testing...</span>
                       ) : testStatus === 'valid' ? (
-                        <span className="text-emerald-400">✓ Valid</span>
+                        <span className="text-emerald-600">✓ Valid</span>
                       ) : testStatus === 'invalid' ? (
-                        <span className="text-red-400">✕ Invalid</span>
-                      ) : (
-                        'Test'
-                      )}
+                        <span className="text-red-600">✕ Invalid</span>
+                      ) : 'Test'}
                     </button>
                   )}
                 </div>
@@ -208,21 +167,20 @@ export default function SettingsPanel() {
           })}
         </div>
 
-        {/* Save button + setup instructions */}
-        <div className="px-6 py-4 border-t border-white/5 bg-zinc-950/20 flex items-center justify-between gap-4 flex-wrap">
+        <div className="px-6 py-4 border-t border-[#ebebeb] bg-[#fafafa] flex items-center justify-between gap-4 flex-wrap">
           <div className="flex-1">
             {!data.apifyConfigured && (
-              <div className="rounded-xl border border-white/6 bg-white/3 px-4 py-3">
-                <p className="text-xs font-medium text-zinc-300 mb-2">Quick setup</p>
-                <ol className="text-xs text-zinc-500 space-y-1 list-decimal list-inside">
-                  <li>Copy <code className="text-zinc-400">.env.example</code> to <code className="text-zinc-400">.env</code></li>
-                  <li>Add your Apify token from <span className="text-indigo-400">console.apify.com</span></li>
+              <div className="rounded-md border border-[#ebebeb] bg-white px-4 py-3">
+                <p className="text-xs font-medium text-[#171717] mb-2">Quick setup</p>
+                <ol className="text-xs text-[#888888] space-y-1 list-decimal list-inside">
+                  <li>Copy <code className="text-[#171717]">.env.example</code> to <code className="text-[#171717]">.env</code></li>
+                  <li>Add your Apify token from <span className="text-[#0070f3]">console.apify.com</span></li>
                   <li>Restart the dev server</li>
                 </ol>
               </div>
             )}
             {saveMsg && (
-              <p className="text-xs text-amber-400 flex items-center gap-1.5">
+              <p className="text-xs text-amber-600 flex items-center gap-1.5">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 {saveMsg}
               </p>
@@ -230,7 +188,7 @@ export default function SettingsPanel() {
           </div>
           <button
             onClick={handleSaveKeys}
-            className="px-4 h-9 rounded-xl bg-white text-black text-sm font-medium hover:bg-zinc-100 transition-all shrink-0"
+            className="px-4 h-9 rounded-md bg-[#171717] text-white text-sm font-medium hover:bg-[#2d2d2d] transition-all shrink-0"
           >
             Save settings
           </button>
@@ -238,46 +196,51 @@ export default function SettingsPanel() {
       </div>
 
       {/* Security note */}
-      <div className="rounded-2xl border border-emerald-500/12 bg-emerald-500/4 p-4 flex items-start gap-3">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-500 shrink-0 mt-0.5">
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex items-start gap-3">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-600 shrink-0 mt-0.5">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
         <div>
-          <p className="text-xs font-semibold text-emerald-400 mb-1">Keys stored server-side only</p>
-          <p className="text-xs text-zinc-500 leading-relaxed">
+          <p className="text-xs font-semibold text-emerald-700 mb-1">Keys stored server-side only</p>
+          <p className="text-xs text-emerald-600 leading-relaxed">
             API keys are read from environment variables at build/startup time. They are never sent to the browser, logged, or exposed in client-side code. Your keys are safe.
           </p>
         </div>
       </div>
 
-      {/* Local database */}
-      <div className="rounded-2xl border border-white/8 bg-zinc-900/40 overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/5">
-          <h2 className="text-sm font-semibold text-white">Local Database</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            Leads stored in <code className="text-zinc-400 bg-white/5 px-1.5 py-0.5 rounded text-[11px]">data/leads.db</code> — stays on your machine.
+      {/* Local storage */}
+      <div
+        className="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
+        style={{ boxShadow: '0px 1px 1px #00000005, 0px 2px 2px #0000000a' }}
+      >
+        <div className="px-6 py-5 border-b border-[#ebebeb]">
+          <h2 className="text-sm font-semibold text-[#171717]">Cloud Storage</h2>
+          <p className="text-xs text-[#888888] mt-0.5">
+            Leads stored in{' '}
+            <code className="text-[#171717] bg-[#f5f5f5] px-1.5 py-0.5 rounded text-[11px] border border-[#ebebeb]">Supabase Postgres</code>{' '}
+            — private to your account.
           </p>
         </div>
         <div className="px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-9 h-9 rounded-xl border border-indigo-500/20 bg-indigo-500/8 flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-indigo-400">
+            <div className="w-9 h-9 rounded-lg border border-blue-200 bg-blue-50 flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-600">
                 <ellipse cx="12" cy="5" rx="9" ry="3"/>
                 <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
                 <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
               </svg>
             </div>
             <div>
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-[#171717]">
                 {leadsCount.toLocaleString()} lead{leadsCount !== 1 ? 's' : ''} stored
               </p>
-              <p className="text-xs text-zinc-500">Deduplicated by Google Maps place ID</p>
+              <p className="text-xs text-[#888888]">Deduplicated by Google Maps place ID</p>
             </div>
           </div>
           <button
             onClick={handleClearLeads}
             disabled={clearing || leadsCount === 0}
-            className="px-3 h-8 rounded-xl border border-red-500/20 bg-red-500/5 text-xs text-red-400 hover:bg-red-500/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium"
+            className="px-3 h-8 rounded-md border border-red-200 bg-red-50 text-xs text-red-600 hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium"
           >
             {clearing ? 'Clearing...' : 'Clear all'}
           </button>
@@ -285,20 +248,23 @@ export default function SettingsPanel() {
       </div>
 
       {/* Scraper config */}
-      <div className="rounded-2xl border border-white/8 bg-zinc-900/40 overflow-hidden">
-        <div className="px-6 py-5 border-b border-white/5">
-          <h2 className="text-sm font-semibold text-white">Scraper Configuration</h2>
+      <div
+        className="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
+        style={{ boxShadow: '0px 1px 1px #00000005, 0px 2px 2px #0000000a' }}
+      >
+        <div className="px-6 py-5 border-b border-[#ebebeb]">
+          <h2 className="text-sm font-semibold text-[#171717]">Scraper Configuration</h2>
         </div>
         <div className="px-6 py-4 space-y-3">
           {[
-            { label: 'Apify Actor', value: 'compass/crawler-google-places' },
+            { label: 'Apify Actor', value: 'compass/google-maps-extractor' },
             { label: 'Data Source', value: 'Google Maps' },
             { label: 'Social Links', value: 'Extracted from scraped data' },
             { label: 'Email', value: 'Available when listed on Google Maps' },
           ].map(({ label, value }) => (
             <div key={label} className="flex items-center justify-between text-xs">
-              <span className="text-zinc-500">{label}</span>
-              <code className="text-zinc-300 bg-white/4 px-2 py-1 rounded">{value}</code>
+              <span className="text-[#888888]">{label}</span>
+              <code className="text-[#171717] bg-[#f5f5f5] px-2 py-1 rounded border border-[#ebebeb]">{value}</code>
             </div>
           ))}
         </div>

@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AuthModal from '../components/AuthModal';
+
+const tab = (Astro.url.searchParams.get('tab') as 'signup' | 'signin') ?? 'signin';
+---
+
+<Layout title="Sign in">
+  <header class="sticky top-0 z-50 border-b border-[#ebebeb] bg-white/95 backdrop-blur-md">
+    <div class="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between gap-6">
+      <a href="/" class="flex items-center gap-2.5 no-underline shrink-0 group">
+        <div
+          class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+          style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a855f7 100%);"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" fill="white" fill-opacity="0.95"/>
+            <circle cx="12" cy="10" r="3" fill="white" fill-opacity="0.45"/>
+          </svg>
+        </div>
+        <span class="font-semibold text-[#171717] text-sm tracking-tight group-hover:text-[#4d4d4d] transition-colors">
+          LeadScraper
+        </span>
+      </a>
+      <p class="text-xs text-[#888888]">
+        {tab === 'signup' ? 'Already have an account?' : "Don't have an account?"}
+        <a
+          href={tab === 'signup' ? '/signin?tab=signin' : '/signin?tab=signup'}
+          class="ml-1.5 text-[#171717] hover:text-[#4d4d4d] transition-colors no-underline underline underline-offset-2"
+        >
+          {tab === 'signup' ? 'Sign in' : 'Create one'}
+        </a>
+      </p>
+    </div>
+  </header>
+
+  <AuthModal client:load standalone={true} defaultTab={tab} />
+</Layout>

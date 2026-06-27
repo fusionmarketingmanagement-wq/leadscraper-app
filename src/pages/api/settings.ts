@@ -1,26 +1,29 @@
 import type { APIRoute } from 'astro';
+import { requireAuth } from '../../lib/auth';
 import { getLeadsCount } from '../../lib/db';
 import { testToken } from '../../lib/apify';
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async (context) => {
+  const auth = requireAuth(context);
+  if ('error' in auth) return auth.error;
+
   const apifyToken = import.meta.env.APIFY_API_TOKEN as string | undefined;
-  const googlePlacesKey = import.meta.env.GOOGLE_PLACES_API_KEY as string | undefined;
-  const hunterKey = import.meta.env.HUNTER_API_KEY as string | undefined;
-  const zeroBounceKey = import.meta.env.ZEROBOUNCE_API_KEY as string | undefined;
-
   const apifyConfigured = Boolean(apifyToken);
-  const googlePlacesConfigured = Boolean(googlePlacesKey);
-  const hunterConfigured = Boolean(hunterKey);
-  const zeroBounceConfigured = Boolean(zeroBounceKey);
-  const leadsCount = getLeadsCount();
 
-  const shouldTest = url.searchParams.get('test') === '1';
-  if (shouldTest && apifyConfigured) {
-    const apifyValid = await testToken(apifyToken!);
-    return json({ apifyConfigured, apifyValid, googlePlacesConfigured, hunterConfigured, zeroBounceConfigured, leadsCount }, 200);
+  let leadsCount = 0;
+  try {
+    leadsCount = await getLeadsCount(auth.supabase);
+  } catch {
+    leadsCount = 0;
   }
 
-  return json({ apifyConfigured, googlePlacesConfigured, hunterConfigured, zeroBounceConfigured, leadsCount }, 200);
+  const shouldTest = context.url.searchParams.get('test') === '1';
+  if (shouldTest && apifyConfigured) {
+    const apifyValid = await testToken(apifyToken!);
+    return json({ apifyConfigured, apifyValid, leadsCount }, 200);
+  }
+
+  return json({ apifyConfigured, leadsCount }, 200);
 };
 
 function json(data: unknown, status: number) {
