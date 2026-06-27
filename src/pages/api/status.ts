@@ -1,0 +1,29 @@
+import type { APIRoute } from 'astro';
+import { getRunStatus } from '../../lib/apify';
+
+export const GET: APIRoute = async ({ url }) => {
+  const token = import.meta.env.APIFY_API_TOKEN as string | undefined;
+  if (!token) {
+    return json({ error: 'APIFY_API_TOKEN not configured' }, 503);
+  }
+
+  const runId = url.searchParams.get('runId');
+  if (!runId) {
+    return json({ error: 'runId query param is required' }, 400);
+  }
+
+  try {
+    const status = await getRunStatus(runId, token);
+    return json(status, 200);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return json({ error: message }, 500);
+  }
+};
+
+function json(data: unknown, status: number) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
