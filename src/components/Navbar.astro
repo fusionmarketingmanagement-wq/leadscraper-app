@@ -1,4 +1,6 @@
 ---
+import { getPublicSupabaseConfig } from '../lib/env';
+
 interface Props {
   variant?: 'landing' | 'app';
 }
@@ -6,6 +8,7 @@ interface Props {
 const { variant = 'app' } = Astro.props;
 const path = Astro.url.pathname;
 const user = Astro.locals.user;
+const supabaseConfig = getPublicSupabaseConfig();
 
 const appNav = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -135,7 +138,7 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
   )}
 </header>
 
-<script>
+<script define:vars={{ supabaseUrl: supabaseConfig.url, supabaseKey: supabaseConfig.key }}>
   import { createBrowserClient } from '@supabase/ssr'
 
   document.getElementById('nav-signin-btn')?.addEventListener('click', () => {
@@ -147,10 +150,8 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
   })
 
   document.getElementById('sign-out-btn')?.addEventListener('click', async () => {
-    const url = import.meta.env.PUBLIC_SUPABASE_URL
-    const key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    if (!url || !key) { window.location.href = '/'; return }
-    const supabase = createBrowserClient(url, key)
+    if (!supabaseUrl || !supabaseKey) { window.location.href = '/'; return }
+    const supabase = createBrowserClient(supabaseUrl, supabaseKey)
     await supabase.auth.signOut()
     window.location.href = '/'
   })

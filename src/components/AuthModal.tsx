@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { getBrowserClient } from '../lib/supabase'
 
 type Tab = 'signup' | 'signin'
 
 interface Props {
   standalone?: boolean
   defaultTab?: Tab
+  supabaseUrl?: string
+  supabaseKey?: string
 }
 
 function getPostAuthRedirect(): string {
@@ -16,7 +18,12 @@ function getPostAuthRedirect(): string {
   return '/dashboard'
 }
 
-export default function AuthModal({ standalone = false, defaultTab = 'signup' }: Props) {
+export default function AuthModal({
+  standalone = false,
+  defaultTab = 'signup',
+  supabaseUrl,
+  supabaseKey,
+}: Props) {
   const [open, setOpen] = useState(standalone)
   const [tab, setTab] = useState<Tab>(defaultTab)
   const [name, setName] = useState('')
@@ -51,16 +58,15 @@ export default function AuthModal({ standalone = false, defaultTab = 'signup' }:
     setError('')
     setMessage('')
 
-    const url = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined
-    const key = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined
-
-    if (!url || !key) {
-      setError('Supabase is not configured. Add PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_PUBLISHABLE_KEY to your .env file.')
+    if (!supabaseUrl || !supabaseKey) {
+      setError(
+        'Supabase is not configured. Add PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_PUBLISHABLE_KEY to your environment, then restart the dev server.'
+      )
       setLoading(false)
       return
     }
 
-    const supabase = createBrowserClient(url, key)
+    const supabase = getBrowserClient(supabaseUrl, supabaseKey)
 
     if (tab === 'signup') {
       const { data, error: err } = await supabase.auth.signUp({

@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware'
 import { createServerClient, parseCookieHeader, type CookieMethodsServer } from '@supabase/ssr'
+import { getPublicSupabaseConfig } from './lib/env'
 
 const PROTECTED_PAGES = ['/dashboard', '/results', '/settings']
 const PROTECTED_API_PREFIXES = ['/api/scrape', '/api/leads', '/api/export', '/api/settings', '/api/status', '/api/collect']
@@ -17,8 +18,7 @@ function isProtectedApi(pathname: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined
-  const supabaseKey = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined
+  const { url: supabaseUrl, key: supabaseKey } = getPublicSupabaseConfig()
 
   if (!supabaseUrl || !supabaseKey) {
     context.locals.user = null

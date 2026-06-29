@@ -1,15 +1,14 @@
 import { createBrowserClient, createServerClient, parseCookieHeader, type CookieMethodsServer } from '@supabase/ssr'
 import type { AstroCookies } from 'astro'
-
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY as string | undefined
+import { getPublicSupabaseConfig, isPublicSupabaseConfigured } from './env'
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(supabaseUrl && supabaseAnonKey)
+  return isPublicSupabaseConfigured(getPublicSupabaseConfig())
 }
 
 function assertConfigured(): void {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  const { url, key } = getPublicSupabaseConfig()
+  if (!url || !key) {
     throw new Error(
       '[LeadScraper] Supabase is not configured.\n' +
       'Add these to your .env file:\n' +
@@ -20,13 +19,19 @@ function assertConfigured(): void {
   }
 }
 
-export function getBrowserClient() {
-  assertConfigured()
-  return createBrowserClient(supabaseUrl!, supabaseAnonKey!)
+export function getBrowserClient(url?: string, key?: string) {
+  const config = url && key ? { url, key } : getPublicSupabaseConfig()
+  if (!config.url || !config.key) {
+    assertConfigured()
+  }
+  return createBrowserClient(config.url!, config.key!)
 }
 
 export function getServerClient(request: Request, astroCookies: AstroCookies) {
-  assertConfigured()
+  const { url: supabaseUrl, key: supabaseAnonKey } = getPublicSupabaseConfig()
+  if (!supabaseUrl || !supabaseAnonKey) {
+    assertConfigured()
+  }
 
   const cookies: CookieMethodsServer = {
     getAll() {
