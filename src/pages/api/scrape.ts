@@ -1,12 +1,13 @@
 import type { APIRoute } from 'astro';
 import { requireAuth } from '../../lib/auth';
 import { startScrape } from '../../lib/apify';
+import { getApifyToken } from '../../lib/env';
 
 export const POST: APIRoute = async (context) => {
   const auth = requireAuth(context);
   if ('error' in auth) return auth.error;
 
-  const token = import.meta.env.APIFY_API_TOKEN as string | undefined;
+  const token = await getApifyToken();
   if (!token) {
     return json({ error: 'APIFY_API_TOKEN is not configured.' }, 503);
   }

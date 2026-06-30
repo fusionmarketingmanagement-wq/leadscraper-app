@@ -1,10 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AuthModal from '../components/AuthModal';
-import { getPublicSupabaseConfig } from '../lib/env';
 
 const tab = (Astro.url.searchParams.get('tab') as 'signup' | 'signin') ?? 'signin';
-const supabaseConfig = getPublicSupabaseConfig();
+const supabaseConfig = Astro.locals.supabaseConfig;
 ---
 
 <Layout title="Sign in">

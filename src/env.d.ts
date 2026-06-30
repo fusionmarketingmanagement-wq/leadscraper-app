@@ -13,5 +13,10 @@ interface ImportMeta {
 declare namespace App {
   interface Locals {
     user: import('@supabase/supabase-js').User | null
+    supabaseConfig: import('./lib/env').PublicSupabaseConfig
   }
+}
+
+declare module 'cloudflare:workers' {
+  export const env: ImportMetaEnv
 }

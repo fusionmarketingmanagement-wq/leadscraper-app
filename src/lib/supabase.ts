@@ -1,34 +1,32 @@
 import { createBrowserClient, createServerClient, parseCookieHeader, type CookieMethodsServer } from '@supabase/ssr'
 import type { AstroCookies } from 'astro'
-import { getPublicSupabaseConfig, isPublicSupabaseConfigured } from './env'
-
-export function isSupabaseConfigured(): boolean {
-  return isPublicSupabaseConfigured(getPublicSupabaseConfig())
-}
+import type { PublicSupabaseConfig } from './env'
+import { isPublicSupabaseConfigured } from './env'
 
 function assertConfigured(): void {
-  const { url, key } = getPublicSupabaseConfig()
-  if (!url || !key) {
-    throw new Error(
-      '[LeadScraper] Supabase is not configured.\n' +
-      'Add these to your .env file:\n' +
-      '  PUBLIC_SUPABASE_URL=https://your-project.supabase.co\n' +
-      '  PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key\n' +
-      'Get them from: Supabase Dashboard → Settings → API'
-    )
-  }
+  throw new Error(
+    '[LeadScraper] Supabase is not configured.\n' +
+    'Add these to your environment:\n' +
+    '  PUBLIC_SUPABASE_URL=https://your-project.supabase.co\n' +
+    '  PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key\n' +
+    'On Cloudflare Pages: Settings → Environment variables → redeploy.'
+  )
 }
 
-export function getBrowserClient(url?: string, key?: string) {
-  const config = url && key ? { url, key } : getPublicSupabaseConfig()
-  if (!config.url || !config.key) {
-    assertConfigured()
-  }
-  return createBrowserClient(config.url!, config.key!)
+export function isSupabaseConfigured(config: PublicSupabaseConfig): boolean {
+  return isPublicSupabaseConfigured(config)
 }
 
-export function getServerClient(request: Request, astroCookies: AstroCookies) {
-  const { url: supabaseUrl, key: supabaseAnonKey } = getPublicSupabaseConfig()
+export function getBrowserClient(url: string, key: string) {
+  return createBrowserClient(url, key)
+}
+
+export function getServerClient(
+  request: Request,
+  astroCookies: AstroCookies,
+  config: PublicSupabaseConfig
+) {
+  const { url: supabaseUrl, key: supabaseAnonKey } = config
   if (!supabaseUrl || !supabaseAnonKey) {
     assertConfigured()
   }

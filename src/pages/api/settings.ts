@@ -2,12 +2,13 @@ import type { APIRoute } from 'astro';
 import { requireAuth } from '../../lib/auth';
 import { getLeadsCount } from '../../lib/db';
 import { testToken } from '../../lib/apify';
+import { getApifyToken } from '../../lib/env';
 
 export const GET: APIRoute = async (context) => {
   const auth = requireAuth(context);
   if ('error' in auth) return auth.error;
 
-  const apifyToken = import.meta.env.APIFY_API_TOKEN as string | undefined;
+  const apifyToken = await getApifyToken();
   const apifyConfigured = Boolean(apifyToken);
 
   let leadsCount = 0;

@@ -23,6 +23,6 @@ export type AuthContext =
 export function requireAuth(context: APIContext): AuthContext {
   const authError = requireUser(context);
   if (authError) return { error: authError };
-  const supabase = getServerClient(context.request, context.cookies);
+  const supabase = getServerClient(context.request, context.cookies, context.locals.supabaseConfig);
   return { supabase, user: context.locals.user! };
 }

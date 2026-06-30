@@ -60,7 +60,7 @@ export default function AuthModal({
 
     if (!supabaseUrl || !supabaseKey) {
       setError(
-        'Supabase is not configured. Add PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_PUBLISHABLE_KEY to your environment, then restart the dev server.'
+        'Supabase is not configured. In Cloudflare Pages go to Settings → Environment variables, add PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_PUBLISHABLE_KEY, then redeploy.'
       )
       setLoading(false)
       return

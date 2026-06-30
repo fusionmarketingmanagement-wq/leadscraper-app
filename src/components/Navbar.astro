@@ -1,6 +1,4 @@
 ---
-import { getPublicSupabaseConfig } from '../lib/env';
-
 interface Props {
   variant?: 'landing' | 'app';
 }
@@ -8,7 +6,7 @@ interface Props {
 const { variant = 'app' } = Astro.props;
 const path = Astro.url.pathname;
 const user = Astro.locals.user;
-const supabaseConfig = getPublicSupabaseConfig();
+const supabaseConfig = Astro.locals.supabaseConfig;
 
 const appNav = [
   { href: '/dashboard', label: 'Dashboard' },

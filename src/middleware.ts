@@ -18,7 +18,10 @@ function isProtectedApi(pathname: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { url: supabaseUrl, key: supabaseKey } = getPublicSupabaseConfig()
+  const supabaseConfig = await getPublicSupabaseConfig()
+  context.locals.supabaseConfig = supabaseConfig
+
+  const { url: supabaseUrl, key: supabaseKey } = supabaseConfig
 
   if (!supabaseUrl || !supabaseKey) {
     context.locals.user = null

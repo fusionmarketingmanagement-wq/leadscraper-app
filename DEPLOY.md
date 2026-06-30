@@ -43,13 +43,15 @@ If the repo root is `leadscraper-app` subfolder, set root to `leadscraper-app`.
 
 ## 4. Environment variables (Cloudflare Pages → Settings → Variables)
 
-| Variable | Encrypted |
-|----------|-----------|
-| `APIFY_API_TOKEN` | Yes |
-| `PUBLIC_SUPABASE_URL` | No |
-| `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | No |
+Add these for **Production** and **Preview**:
 
-Use the same values as your local `.env` file.
+| Variable | Encrypted | Example |
+|----------|-----------|---------|
+| `APIFY_API_TOKEN` | **Yes** | your Apify token |
+| `PUBLIC_SUPABASE_URL` | No | `https://kzdegjherlmkllwcteod.supabase.co` |
+| `PUBLIC_SUPABASE_PUBLISHABLE_KEY` | No | your Supabase anon key |
+
+**Important:** After adding variables, trigger a new deployment (Deployments → Retry deployment). The app reads these at runtime on Cloudflare Workers.
 
 ## 5. Deploy
 

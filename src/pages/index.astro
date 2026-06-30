@@ -2,10 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import AuthModal from '../components/AuthModal';
-import { getPublicSupabaseConfig } from '../lib/env';
 
 const user = Astro.locals.user;
-const supabaseConfig = getPublicSupabaseConfig();
+const supabaseConfig = Astro.locals.supabaseConfig;
 
 const features = [
   {
