@@ -45,12 +45,12 @@ export default function InstantPage() {
   const [instantOn, setInstantOn] = useState(true);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 min-w-0">
       <p className="text-sm text-[#888888]">Auto-contact new leads within 60 seconds of form submission.</p>
 
-      <div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 bg-white">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border border-gray-200 bg-white">
         <ToggleSwitch checked={instantOn} onChange={() => setInstantOn((v) => !v)} label="Instant Mode" />
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-[#171717]">Instant Mode</p>
           <p className="text-xs text-gray-500">{instantOn ? 'Active — new leads are contacted automatically' : 'Paused — manual outreach only'}</p>
         </div>

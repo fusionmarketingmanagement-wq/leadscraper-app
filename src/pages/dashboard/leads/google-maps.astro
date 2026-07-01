@@ -8,7 +8,7 @@ const displayName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0]
 ---
 
 <DashboardLayout title="Google Maps" pageTitle="Google Maps">
-  <div class="mx-auto max-w-6xl">
+  <div class="mx-auto max-w-6xl min-w-0">
     <p class="text-[#888888] text-sm mb-6">
       Welcome back, {displayName}. Find business leads by keyword and location.
     </p>
@@ -16,7 +16,7 @@ const displayName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0]
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div class="lg:col-span-2">
         <div
-          class="rounded-xl border border-[#ebebeb] bg-white p-6"
+          class="rounded-xl border border-[#ebebeb] bg-white p-4 sm:p-6"
           style="box-shadow: 0px 1px 1px #00000005, 0px 2px 2px #0000000a;"
         >
           <div class="flex items-center gap-3 mb-6 pb-5 border-b border-[#ebebeb]">

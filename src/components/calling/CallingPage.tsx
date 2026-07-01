@@ -39,8 +39,8 @@ function outcomeVariant(o: string) {
 
 export default function CallingPage() {
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="grid grid-cols-3 gap-3">
+    <div className="mx-auto max-w-6xl space-y-6 min-w-0">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <StatCard label="Calls Today" value="24" accent="text-[#171717]" />
         <StatCard label="Connected" value="18" accent="text-emerald-600" />
         <StatCard label="Meetings Booked" value="6" accent="text-cyan-600" />
@@ -51,12 +51,12 @@ export default function CallingPage() {
           <h3 className="text-sm font-semibold text-[#171717] mb-4">Call Queue</h3>
           <ul className="space-y-3">
             {QUEUE.map((q) => (
-              <li key={q.name} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-gray-100">
+              <li key={q.name} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-lg border border-gray-100">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-[#171717]">{q.name}</p>
                   <p className="text-xs text-gray-500">{q.phone} · {q.company}</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
                   <StatusBadge label={q.priority} variant={priorityVariant(q.priority)} />
                   <button type="button" className="px-3 h-8 rounded-lg bg-cyan-500 text-white text-xs font-medium hover:bg-cyan-600 cursor-pointer whitespace-nowrap">
                     Call Now

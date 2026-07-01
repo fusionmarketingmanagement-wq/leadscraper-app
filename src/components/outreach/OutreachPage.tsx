@@ -29,16 +29,16 @@ export default function OutreachPage() {
   const campaigns = tab === 'email' ? EMAIL_CAMPAIGNS : WA_CAMPAIGNS;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="mx-auto max-w-6xl space-y-6 min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <p className="text-sm text-[#888888]">Manage email and WhatsApp outreach campaigns.</p>
-        <button type="button" className="inline-flex items-center gap-2 px-4 h-9 rounded-lg bg-cyan-500 text-white text-sm font-medium hover:bg-cyan-600 transition-colors cursor-pointer">
+        <button type="button" className="inline-flex items-center justify-center gap-2 px-4 h-9 rounded-lg bg-cyan-500 text-white text-sm font-medium hover:bg-cyan-600 transition-colors cursor-pointer w-full sm:w-auto">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
           New Campaign
         </button>
       </div>
 
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
+      <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-full sm:w-fit">
         {(['email', 'whatsapp'] as Tab[]).map((t) => (
           <button
             key={t}

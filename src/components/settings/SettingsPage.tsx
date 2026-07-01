@@ -48,14 +48,14 @@ export default function SettingsPage({ initialTab = 'general' }: Props) {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit flex-wrap">
+    <div className="mx-auto max-w-6xl space-y-6 min-w-0">
+      <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-full sm:w-fit overflow-x-auto">
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
               tab === t.id ? 'bg-white text-[#171717] shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
@@ -119,11 +119,12 @@ export default function SettingsPage({ initialTab = 'general' }: Props) {
 
       {tab === 'team' && (
         <div className="rounded-xl border border-gray-200 bg-white overflow-hidden" style={{ boxShadow: '0px 1px 1px #00000005' }}>
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="text-sm font-semibold text-[#171717]">Team Members</h3>
-            <button type="button" className="px-3 h-8 rounded-lg bg-cyan-500 text-white text-xs font-medium hover:bg-cyan-600 cursor-pointer">+ Invite Member</button>
+            <button type="button" className="px-3 h-8 rounded-lg bg-cyan-500 text-white text-xs font-medium hover:bg-cyan-600 cursor-pointer w-full sm:w-auto">+ Invite Member</button>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[520px]">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">Member</th>
@@ -148,18 +149,19 @@ export default function SettingsPage({ initialTab = 'general' }: Props) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
       {tab === 'billing' && (
         <div className="space-y-6 max-w-2xl">
-          <div className="rounded-xl border border-gray-200 bg-white p-6" style={{ boxShadow: '0px 1px 1px #00000005' }}>
-            <div className="flex items-start justify-between mb-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6" style={{ boxShadow: '0px 1px 1px #00000005' }}>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
               <div>
                 <p className="text-sm font-semibold text-[#171717]">Starter Plan</p>
                 <p className="text-2xl font-bold text-cyan-600 mt-1">$49<span className="text-sm font-normal text-gray-500">/mo</span></p>
               </div>
-              <button type="button" className="px-4 h-9 rounded-lg bg-cyan-500 text-white text-sm font-medium hover:bg-cyan-600 cursor-pointer">Upgrade Plan</button>
+              <button type="button" className="px-4 h-9 rounded-lg bg-cyan-500 text-white text-sm font-medium hover:bg-cyan-600 cursor-pointer w-full sm:w-auto">Upgrade Plan</button>
             </div>
             <div className="space-y-3">
               {[
@@ -183,7 +185,8 @@ export default function SettingsPage({ initialTab = 'general' }: Props) {
             <div className="px-5 py-4 border-b border-gray-100">
               <h3 className="text-sm font-semibold text-[#171717]">Invoice History</h3>
             </div>
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[400px]">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="text-left py-3 px-4 text-xs font-semibold text-gray-500">Invoice</th>
@@ -203,6 +206,7 @@ export default function SettingsPage({ initialTab = 'general' }: Props) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}

@@ -107,7 +107,7 @@ export default function AuthModal({
 
   const card = (
     <div
-      className="w-full max-w-sm rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
+      className="w-full max-w-sm mx-auto rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
       style={{ boxShadow: '0px 1px 1px #00000005, 0px 8px 16px -4px #0000000a, 0px 24px 32px -8px #0000000f' }}
       onClick={(e) => e.stopPropagation()}
     >

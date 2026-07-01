@@ -18,8 +18,8 @@ export default function BookingPage() {
   const startOffset = 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="grid grid-cols-2 gap-3 max-w-md">
+    <div className="mx-auto max-w-6xl space-y-6 min-w-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md">
         <StatCard label="Meetings This Week" value="8" accent="text-cyan-600" />
         <StatCard label="Pending Confirmations" value="3" accent="text-amber-600" />
       </div>
@@ -60,7 +60,7 @@ export default function BookingPage() {
           <ul className="space-y-3">
             {MEETINGS.map((m) => (
               <li key={m.name + m.time} className="p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
-                <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
                   <div>
                     <p className="text-sm font-medium text-[#171717]">{m.name}</p>
                     <p className="text-xs text-gray-500">{m.time} · {m.duration}</p>
@@ -68,7 +68,7 @@ export default function BookingPage() {
                   <StatusBadge label={m.type} variant="cyan" />
                 </div>
                 <p className="text-[10px] text-gray-400 font-mono mb-2 truncate">{m.link}</p>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {['Confirm', 'Reschedule', 'Cancel'].map((btn) => (
                     <button key={btn} type="button" className="px-2.5 py-1 rounded-md text-[10px] font-medium border border-gray-200 text-gray-600 hover:bg-white cursor-pointer">
                       {btn}

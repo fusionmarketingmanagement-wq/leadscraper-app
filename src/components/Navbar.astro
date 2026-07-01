@@ -13,7 +13,7 @@ const supabaseConfig = Astro.locals.supabaseConfig;
 const appNav = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/results', label: 'Results' },
-  { href: '/settings', label: 'Settings' },
+  { href: '/dashboard/settings', label: 'Settings' },
 ];
 
 const landingNav = [
@@ -25,7 +25,7 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
 ---
 
 <header class="sticky top-0 z-50 border-b border-[#ebebeb] bg-white/95 backdrop-blur-md">
-  <div class="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between gap-4">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
 
     <!-- Logo -->
     <a href="/" class="flex items-center gap-2.5 no-underline shrink-0 group">
@@ -59,22 +59,20 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
 
     <!-- CTAs -->
     <div class="flex items-center gap-2 shrink-0">
-      {variant === 'app' && (
-        <button
-          id="mobile-menu-btn"
-          type="button"
-          aria-label="Open menu"
-          aria-expanded="false"
-          class="md:hidden flex items-center justify-center w-8 h-8 rounded-md border border-[#ebebeb] bg-white text-[#171717] hover:bg-[#f5f5f5] transition-all cursor-pointer"
-        >
-          <svg id="mobile-menu-icon-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-          <svg id="mobile-menu-icon-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      )}
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        class="md:hidden flex items-center justify-center w-8 h-8 rounded-md border border-[#ebebeb] bg-white text-[#171717] hover:bg-[#f5f5f5] transition-all cursor-pointer"
+      >
+        <svg id="mobile-menu-icon-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+        <svg id="mobile-menu-icon-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
 
       {variant === 'landing' ? (
         <>
@@ -110,31 +108,38 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
 
   </div>
 
-  {variant === 'app' && (
-    <nav
-      id="mobile-menu"
-      class="hidden md:hidden border-t border-[#ebebeb] bg-white px-6 py-3"
-    >
-      <div class="flex flex-col gap-1">
-        {appNav.map(({ href, label }) => {
-          const active = path === href || path.startsWith(href + '/');
-          return (
-            <a
-              href={href}
-              data-mobile-nav-link
-              class={`px-3 py-2.5 rounded-md text-sm transition-all no-underline ${
-                active
-                  ? 'bg-[#f5f5f5] text-[#171717] font-medium'
-                  : 'text-[#4d4d4d] hover:text-[#171717] hover:bg-[#f5f5f5]'
-              }`}
-            >
-              {label}
-            </a>
-          );
-        })}
-      </div>
-    </nav>
-  )}
+  <nav
+    id="mobile-menu"
+    class="hidden md:hidden border-t border-[#ebebeb] bg-white px-4 sm:px-6 py-3"
+  >
+    <div class="flex flex-col gap-1">
+      {navLinks.map(({ href, label }) => {
+        const active = variant === 'app' && (path === href || path.startsWith(href + '/'));
+        return (
+          <a
+            href={href}
+            data-mobile-nav-link
+            class={`px-3 py-2.5 rounded-md text-sm transition-all no-underline ${
+              active
+                ? 'bg-[#f5f5f5] text-[#171717] font-medium'
+                : 'text-[#4d4d4d] hover:text-[#171717] hover:bg-[#f5f5f5]'
+            }`}
+          >
+            {label}
+          </a>
+        );
+      })}
+      {variant === 'landing' && (
+        <button
+          id="mobile-signin-btn"
+          type="button"
+          class="mt-1 px-3 py-2.5 rounded-md text-sm text-left text-[#4d4d4d] hover:text-[#171717] hover:bg-[#f5f5f5] transition-all cursor-pointer sm:hidden"
+        >
+          Sign in
+        </button>
+      )}
+    </div>
+  </nav>
 </header>
 
 <script>
@@ -144,6 +149,11 @@ const navLinks = variant === 'landing' ? landingNav : appNav;
 
   document.getElementById('nav-signup-btn')?.addEventListener('click', () => {
     document.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { tab: 'signup' } }))
+  })
+
+  document.getElementById('mobile-signin-btn')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { tab: 'signin' } }))
+    setMobileMenuOpen(false)
   })
 
   const menuBtn = document.getElementById('mobile-menu-btn')

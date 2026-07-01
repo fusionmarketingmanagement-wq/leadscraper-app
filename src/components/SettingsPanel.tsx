@@ -103,7 +103,7 @@ export default function SettingsPanel() {
         className="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
         style={{ boxShadow: '0px 1px 1px #00000005, 0px 2px 2px #0000000a' }}
       >
-        <div className="px-6 py-5 border-b border-[#ebebeb]">
+        <div className="px-4 sm:px-6 py-5 border-b border-[#ebebeb]">
           <h2 className="text-sm font-semibold text-[#171717]">API Keys</h2>
           <p className="text-xs text-[#888888] mt-0.5">
             Managed via your{' '}
@@ -116,7 +116,7 @@ export default function SettingsPanel() {
           {keyDefs.map((key) => {
             const configured = Boolean(data[key.configuredKey]);
             return (
-              <div key={key.id} className="px-6 py-5 flex items-start justify-between gap-4">
+              <div key={key.id} className="px-4 sm:px-6 py-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div className="flex items-start gap-4 min-w-0">
                   <div className={`mt-0.5 w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 ${
                     configured ? 'border-emerald-200 bg-emerald-50' : 'border-[#ebebeb] bg-[#fafafa]'
@@ -167,7 +167,7 @@ export default function SettingsPanel() {
           })}
         </div>
 
-        <div className="px-6 py-4 border-t border-[#ebebeb] bg-[#fafafa] flex items-center justify-between gap-4 flex-wrap">
+        <div className="px-4 sm:px-6 py-4 border-t border-[#ebebeb] bg-[#fafafa] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1">
             {!data.apifyConfigured && (
               <div className="rounded-md border border-[#ebebeb] bg-white px-4 py-3">
@@ -188,7 +188,7 @@ export default function SettingsPanel() {
           </div>
           <button
             onClick={handleSaveKeys}
-            className="px-4 h-9 rounded-md bg-[#171717] text-white text-sm font-medium hover:bg-[#2d2d2d] transition-all shrink-0"
+            className="px-4 h-9 rounded-md bg-[#171717] text-white text-sm font-medium hover:bg-[#2d2d2d] transition-all shrink-0 w-full sm:w-auto"
           >
             Save settings
           </button>
@@ -213,7 +213,7 @@ export default function SettingsPanel() {
         className="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
         style={{ boxShadow: '0px 1px 1px #00000005, 0px 2px 2px #0000000a' }}
       >
-        <div className="px-6 py-5 border-b border-[#ebebeb]">
+        <div className="px-4 sm:px-6 py-5 border-b border-[#ebebeb]">
           <h2 className="text-sm font-semibold text-[#171717]">Cloud Storage</h2>
           <p className="text-xs text-[#888888] mt-0.5">
             Leads stored in{' '}
@@ -221,7 +221,7 @@ export default function SettingsPanel() {
             — private to your account.
           </p>
         </div>
-        <div className="px-6 py-5 flex items-center justify-between gap-4">
+        <div className="px-4 sm:px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-9 h-9 rounded-lg border border-blue-200 bg-blue-50 flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-600">
@@ -240,7 +240,7 @@ export default function SettingsPanel() {
           <button
             onClick={handleClearLeads}
             disabled={clearing || leadsCount === 0}
-            className="px-3 h-8 rounded-md border border-red-200 bg-red-50 text-xs text-red-600 hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium"
+            className="px-3 h-8 rounded-md border border-red-200 bg-red-50 text-xs text-red-600 hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium w-full sm:w-auto"
           >
             {clearing ? 'Clearing...' : 'Clear all'}
           </button>
@@ -252,19 +252,19 @@ export default function SettingsPanel() {
         className="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
         style={{ boxShadow: '0px 1px 1px #00000005, 0px 2px 2px #0000000a' }}
       >
-        <div className="px-6 py-5 border-b border-[#ebebeb]">
+        <div className="px-4 sm:px-6 py-5 border-b border-[#ebebeb]">
           <h2 className="text-sm font-semibold text-[#171717]">Scraper Configuration</h2>
         </div>
-        <div className="px-6 py-4 space-y-3">
+        <div className="px-4 sm:px-6 py-4 space-y-3">
           {[
             { label: 'Apify Actor', value: 'compass/google-maps-extractor' },
             { label: 'Data Source', value: 'Google Maps' },
             { label: 'Social Links', value: 'Extracted from scraped data' },
             { label: 'Email', value: 'Available when listed on Google Maps' },
           ].map(({ label, value }) => (
-            <div key={label} className="flex items-center justify-between text-xs">
-              <span className="text-[#888888]">{label}</span>
-              <code className="text-[#171717] bg-[#f5f5f5] px-2 py-1 rounded border border-[#ebebeb]">{value}</code>
+            <div key={label} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 text-xs">
+              <span className="text-[#888888] shrink-0">{label}</span>
+              <code className="text-[#171717] bg-[#f5f5f5] px-2 py-1 rounded border border-[#ebebeb] break-all sm:break-normal">{value}</code>
             </div>
           ))}
         </div>

@@ -83,9 +83,9 @@ export default function OverviewDashboard({ userName }: Props) {
   });
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8 min-w-0">
       <div>
-        <h2 className="text-xl font-semibold text-[#171717] tracking-tight mb-1">
+        <h2 className="text-lg sm:text-xl font-semibold text-[#171717] tracking-tight mb-1">
           Welcome back, {userName}
         </h2>
         <p className="text-sm text-[#888888]">{today}</p>
@@ -126,7 +126,7 @@ export default function OverviewDashboard({ userName }: Props) {
           <h3 className="text-sm font-semibold text-[#171717] mb-4">Module Status</h3>
           <ul className="space-y-3">
             {modules.map((mod, i) => (
-              <li key={mod.name} className="flex items-center justify-between gap-3 py-1">
+              <li key={mod.name} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 py-2 sm:py-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-[#171717]">{mod.name}</span>
                   <StatusBadge label={mod.on ? 'ON' : 'OFF'} variant={mod.on ? 'active' : 'neutral'} />

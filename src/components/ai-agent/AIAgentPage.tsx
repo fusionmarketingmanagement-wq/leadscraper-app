@@ -18,7 +18,7 @@ export default function AIAgentPage() {
   const services = ['Lead Scraping', 'Email Outreach', 'AI Calling', 'Booking Automation'];
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl min-w-0 space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-xl border border-gray-200 bg-white p-6 space-y-5" style={{ boxShadow: '0px 1px 1px #00000005' }}>
           <div>

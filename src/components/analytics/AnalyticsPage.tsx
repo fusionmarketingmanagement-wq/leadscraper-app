@@ -29,9 +29,9 @@ export default function AnalyticsPage() {
   const [range, setRange] = useState<(typeof RANGES)[number]>('30D');
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex justify-end">
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
+    <div className="mx-auto max-w-6xl space-y-6 min-w-0">
+      <div className="flex flex-col sm:flex-row sm:justify-end gap-2">
+        <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-full sm:w-fit overflow-x-auto">
           {RANGES.map((r) => (
             <button
               key={r}

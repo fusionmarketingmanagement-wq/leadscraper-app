@@ -201,8 +201,8 @@ export default function ResultsTable() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a1a1a1] pointer-events-none" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
@@ -222,7 +222,7 @@ export default function ResultsTable() {
           <FilterPill label="Rating ≥ 4.0" active={highRating} count={highRatingCount} onClick={() => toggleFilter(setHighRating, highRating)} />
         </div>
 
-        <span className="text-xs text-[#888888] ml-auto whitespace-nowrap font-mono">
+        <span className="text-xs text-[#888888] sm:ml-auto whitespace-nowrap font-mono">
           {filtered.length.toLocaleString()} {filtered.length === 1 ? 'result' : 'results'}
         </span>
       </div>
@@ -327,7 +327,7 @@ export default function ResultsTable() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <span className="text-xs text-[#888888] font-mono">
             Page {safePage} of {totalPages}
           </span>

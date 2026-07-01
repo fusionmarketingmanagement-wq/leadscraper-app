@@ -58,7 +58,7 @@ const mockLeads = [
 
   <main>
     <!-- ─── HERO ──────────────────────────────────────── -->
-    <section class="relative overflow-hidden pt-20 pb-32 px-6 bg-white">
+    <section class="relative overflow-hidden pt-16 sm:pt-20 pb-20 sm:pb-32 px-4 sm:px-6 bg-white">
       <!-- Vercel-style mesh gradient atmospheric backdrop -->
       <div class="absolute inset-0 pointer-events-none overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full blur-3xl opacity-[0.12]" style="background: radial-gradient(ellipse, #007cf0 0%, #00dfd8 35%, transparent 70%);"></div>
@@ -78,15 +78,15 @@ const mockLeads = [
 
         <!-- Headline -->
         <h1
-          class="text-center text-5xl sm:text-6xl md:text-7xl font-semibold text-[#171717] leading-none mb-6"
-          style="letter-spacing: -2.5px;"
+          class="text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-[#171717] leading-none mb-6"
+          style="letter-spacing: -1.5px;"
         >
           Find verified business<br />
           <span class="text-[#888888]">leads in seconds.</span>
         </h1>
 
         <!-- Subheadline -->
-        <p class="text-center text-lg text-[#4d4d4d] leading-relaxed max-w-2xl mx-auto mb-10">
+        <p class="text-center text-base sm:text-lg text-[#4d4d4d] leading-relaxed max-w-2xl mx-auto mb-10 px-2">
           Search by niche and location, collect public business data from Google Maps, and export clean leads to CSV.
         </p>
 
@@ -139,8 +139,8 @@ const mockLeads = [
             </div>
 
             <!-- Search inputs mock -->
-            <div class="p-5 border-b border-[#ebebeb]">
-              <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="p-4 sm:p-5 border-b border-[#ebebeb]">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 <div class="flex items-center gap-2 rounded-md border border-[#ebebeb] bg-white px-3 py-2.5">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#a1a1a1] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                   <span class="text-sm text-[#171717]">dentists</span>
@@ -156,21 +156,23 @@ const mockLeads = [
             </div>
 
             <!-- Sample leads table -->
-            <div>
-              <div class="grid grid-cols-4 px-5 py-2.5 border-b border-[#ebebeb] bg-[#fafafa]">
+            <div class="overflow-x-auto">
+              <div class="min-w-[480px]">
+              <div class="grid grid-cols-4 px-4 sm:px-5 py-2.5 border-b border-[#ebebeb] bg-[#fafafa]">
                 <span class="text-[10px] text-[#888888] font-mono uppercase tracking-wider">Company</span>
                 <span class="text-[10px] text-[#888888] font-mono uppercase tracking-wider">Rating</span>
                 <span class="text-[10px] text-[#888888] font-mono uppercase tracking-wider">Phone</span>
                 <span class="text-[10px] text-[#888888] font-mono uppercase tracking-wider">Website</span>
               </div>
               {mockLeads.map((lead, i) => (
-                <div class={`grid grid-cols-4 px-5 py-3 border-b border-[#ebebeb] text-xs ${i % 2 === 1 ? 'bg-[#fafafa]/60' : ''}`}>
+                <div class={`grid grid-cols-4 px-4 sm:px-5 py-3 border-b border-[#ebebeb] text-xs ${i % 2 === 1 ? 'bg-[#fafafa]/60' : ''}`}>
                   <span class="text-[#171717] font-medium truncate">{lead.name}</span>
                   <span class="text-emerald-600">★ {lead.rating}</span>
                   <span class="text-[#4d4d4d]">{lead.phone}</span>
                   <span class="text-[#0070f3]">{lead.web}</span>
                 </div>
               ))}
+              </div>
             </div>
           </div>
         </div>
@@ -178,7 +180,7 @@ const mockLeads = [
     </section>
 
     <!-- ─── LOGO CLOUD ─────────────────────────────────── -->
-    <section class="border-y border-[#ebebeb] px-6 py-12 bg-[#fafafa]">
+    <section class="border-y border-[#ebebeb] px-4 sm:px-6 py-10 sm:py-12 bg-[#fafafa]">
       <div class="mx-auto max-w-5xl text-center">
         <p class="text-[10px] text-[#a1a1a1] uppercase tracking-widest font-mono mb-8">Trusted by sales teams worldwide</p>
         <div class="flex items-center justify-center gap-10 flex-wrap">
@@ -190,7 +192,7 @@ const mockLeads = [
     </section>
 
     <!-- ─── FEATURES ───────────────────────────────────── -->
-    <section id="features" class="px-6 py-24 bg-white">
+    <section id="features" class="px-4 sm:px-6 py-16 sm:py-24 bg-white">
       <div class="mx-auto max-w-5xl">
         <div class="text-center mb-16">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#ebebeb] bg-[#fafafa] text-xs text-[#4d4d4d] font-mono mb-4">
@@ -223,7 +225,7 @@ const mockLeads = [
     </section>
 
     <!-- ─── HOW IT WORKS ───────────────────────────────── -->
-    <section class="px-6 py-24 border-t border-[#ebebeb] bg-[#fafafa]">
+    <section class="px-4 sm:px-6 py-16 sm:py-24 border-t border-[#ebebeb] bg-[#fafafa]">
       <div class="mx-auto max-w-5xl">
         <div class="text-center mb-16">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#ebebeb] bg-white text-xs text-[#4d4d4d] font-mono mb-4">
@@ -255,7 +257,7 @@ const mockLeads = [
     </section>
 
     <!-- ─── DATA FIELDS ────────────────────────────────── -->
-    <section class="px-6 py-16 border-t border-[#ebebeb] bg-[#fafafa]">
+    <section class="px-4 sm:px-6 py-12 sm:py-16 border-t border-[#ebebeb] bg-[#fafafa]">
       <div class="mx-auto max-w-5xl">
         <div
           class="rounded-xl border border-[#ebebeb] bg-white overflow-hidden"
@@ -285,7 +287,7 @@ const mockLeads = [
     </section>
 
     <!-- ─── PRICING ────────────────────────────────────── -->
-    <section id="pricing" class="px-6 py-24 border-t border-[#ebebeb] bg-white">
+    <section id="pricing" class="px-4 sm:px-6 py-16 sm:py-24 border-t border-[#ebebeb] bg-white">
       <div class="mx-auto max-w-5xl">
         <div class="text-center mb-16">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#ebebeb] bg-[#fafafa] text-xs text-[#4d4d4d] font-mono mb-4">
@@ -350,7 +352,7 @@ const mockLeads = [
     </section>
 
     <!-- ─── FINAL CTA ──────────────────────────────────── -->
-    <section class="px-6 py-24 border-t border-[#ebebeb] bg-[#171717]">
+    <section class="px-4 sm:px-6 py-16 sm:py-24 border-t border-[#ebebeb] bg-[#171717]">
       <div class="mx-auto max-w-3xl text-center">
         <h2 class="text-3xl sm:text-4xl font-semibold text-white mb-4" style="letter-spacing: -1px;">
           Start finding leads today.
@@ -383,10 +385,10 @@ const mockLeads = [
     </section>
 
     <!-- ─── FOOTER ─────────────────────────────────────── -->
-    <footer class="border-t border-[#ebebeb] px-6 py-12 bg-white">
+    <footer class="border-t border-[#ebebeb] px-4 sm:px-6 py-10 sm:py-12 bg-white">
       <div class="mx-auto max-w-5xl">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2.5 flex-wrap">
             <div class="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a855f7 100%);">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                 <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" fill="white" fill-opacity="0.9"/>
@@ -400,7 +402,7 @@ const mockLeads = [
           <div class="flex items-center gap-6">
             <a href="/dashboard" class="text-xs text-[#888888] hover:text-[#171717] transition-colors no-underline">Dashboard</a>
             <a href="/results"   class="text-xs text-[#888888] hover:text-[#171717] transition-colors no-underline">Results</a>
-            <a href="/settings"  class="text-xs text-[#888888] hover:text-[#171717] transition-colors no-underline">Settings</a>
+            <a href="/dashboard/settings" class="text-xs text-[#888888] hover:text-[#171717] transition-colors no-underline">Settings</a>
           </div>
           <p class="text-xs text-[#a1a1a1]">© 2025 LeadScraper. Self-hosted.</p>
         </div>
