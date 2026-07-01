@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { requireAuth } from '../../lib/auth';
 import { startScrape } from '../../lib/apify';
+import { createSearch } from '../../lib/db';
 import { getApifyToken } from '../../lib/env';
 
 export const POST: APIRoute = async (context) => {
@@ -32,12 +33,24 @@ export const POST: APIRoute = async (context) => {
 
   try {
     const run = await startScrape(searchString, clampedMax, language, token);
+    const search = await createSearch(
+      auth.supabase,
+      auth.user.id,
+      'google_maps',
+      searchString,
+      { keyword, location, maxResults: clampedMax, language },
+      run.runId,
+      run.datasetId
+    );
+
     return json(
       {
         runId: run.runId,
         datasetId: run.datasetId,
+        searchId: search.id,
         status: run.status,
         query: searchString,
+        source: 'google_maps',
       },
       200
     );

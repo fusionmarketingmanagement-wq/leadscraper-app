@@ -1,40 +1,47 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Lead } from './types';
+import type { Lead, LeadSource, SearchRecord, SearchStatus } from './types';
 
 interface LeadRow {
   id: string;
   user_id: string;
-  company_name: string;
-  category: string;
-  website: string;
-  phone: string;
+  name: string;
   email: string;
-  address: string;
-  city: string;
-  country: string;
-  rating: number | null;
-  social_links: Lead['socialLinks'];
-  source_url: string;
+  phone: string;
+  website: string;
+  profile_url: string;
+  location: string;
+  source: LeadSource;
+  search_id: string | null;
+  raw_data: Record<string, unknown>;
   scraped_at: string;
-  search_query: string;
+}
+
+interface SearchRow {
+  id: string;
+  user_id: string;
+  source: LeadSource;
+  query: string;
+  status: SearchStatus;
+  apify_run_id: string | null;
+  apify_dataset_id: string | null;
+  input: Record<string, unknown>;
+  created_at: string;
+  completed_at: string | null;
 }
 
 function rowToLead(row: LeadRow): Lead {
   return {
     id: row.id,
-    companyName: row.company_name,
-    category: row.category,
-    website: row.website,
-    phone: row.phone,
+    name: row.name,
     email: row.email,
-    address: row.address,
-    city: row.city,
-    country: row.country,
-    rating: row.rating !== null ? Number(row.rating) : null,
-    socialLinks: row.social_links ?? {},
-    sourceUrl: row.source_url,
+    phone: row.phone,
+    website: row.website,
+    profileUrl: row.profile_url,
+    location: row.location,
+    source: row.source,
+    searchId: row.search_id,
+    rawData: row.raw_data ?? {},
     scrapedAt: row.scraped_at,
-    searchQuery: row.search_query,
   };
 }
 
@@ -42,19 +49,30 @@ function leadToRow(lead: Lead, userId: string): Omit<LeadRow, 'user_id'> & { use
   return {
     id: lead.id,
     user_id: userId,
-    company_name: lead.companyName,
-    category: lead.category,
-    website: lead.website,
-    phone: lead.phone,
+    name: lead.name,
     email: lead.email,
-    address: lead.address,
-    city: lead.city,
-    country: lead.country,
-    rating: lead.rating,
-    social_links: lead.socialLinks,
-    source_url: lead.sourceUrl,
+    phone: lead.phone,
+    website: lead.website,
+    profile_url: lead.profileUrl,
+    location: lead.location,
+    source: lead.source,
+    search_id: lead.searchId,
+    raw_data: lead.rawData,
     scraped_at: lead.scrapedAt,
-    search_query: lead.searchQuery,
+  };
+}
+
+function rowToSearch(row: SearchRow): SearchRecord {
+  return {
+    id: row.id,
+    source: row.source,
+    query: row.query,
+    status: row.status,
+    apifyRunId: row.apify_run_id,
+    apifyDatasetId: row.apify_dataset_id,
+    input: row.input ?? {},
+    createdAt: row.created_at,
+    completedAt: row.completed_at,
   };
 }
 
@@ -105,4 +123,82 @@ export async function getLeadsCount(supabase: SupabaseClient): Promise<number> {
 
   if (error) throw new Error(error.message);
   return count ?? 0;
+}
+
+export async function createSearch(
+  supabase: SupabaseClient,
+  userId: string,
+  source: LeadSource,
+  query: string,
+  input: Record<string, unknown>,
+  apifyRunId: string,
+  apifyDatasetId: string
+): Promise<SearchRecord> {
+  const { data, error } = await supabase
+    .from('searches')
+    .insert({
+      user_id: userId,
+      source,
+      query,
+      status: 'running',
+      apify_run_id: apifyRunId,
+      apify_dataset_id: apifyDatasetId,
+      input,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw new Error(error.message);
+  return rowToSearch(data as SearchRow);
+}
+
+export async function updateSearchStatus(
+  supabase: SupabaseClient,
+  searchId: string,
+  status: SearchStatus
+): Promise<void> {
+  const { error } = await supabase
+    .from('searches')
+    .update({
+      status,
+      completed_at: status === 'running' ? null : new Date().toISOString(),
+    })
+    .eq('id', searchId);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function readRecentSearches(
+  supabase: SupabaseClient,
+  limit = 5
+): Promise<SearchRecord[]> {
+  const { data, error } = await supabase
+    .from('searches')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(error.message);
+
+  const searches = (data as SearchRow[]).map(rowToSearch);
+  if (searches.length === 0) return searches;
+
+  const searchIds = searches.map((s) => s.id);
+  const { data: leadCounts, error: countError } = await supabase
+    .from('leads')
+    .select('search_id')
+    .in('search_id', searchIds);
+
+  if (countError) throw new Error(countError.message);
+
+  const countMap = new Map<string, number>();
+  for (const row of leadCounts ?? []) {
+    const id = row.search_id as string;
+    countMap.set(id, (countMap.get(id) ?? 0) + 1);
+  }
+
+  return searches.map((search) => ({
+    ...search,
+    leadCount: countMap.get(search.id) ?? 0,
+  }));
 }

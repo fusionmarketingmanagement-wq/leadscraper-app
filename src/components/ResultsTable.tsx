@@ -4,6 +4,43 @@ import StatCard from './StatCard';
 
 const PAGE_SIZE = 25;
 
+function leadCategory(lead: Lead): string {
+  if (lead.source === 'linkedin') {
+    return String(lead.rawData.headline ?? lead.rawData.currentCompany ?? '');
+  }
+  return String(lead.rawData.category ?? '');
+}
+
+function leadRating(lead: Lead): number | null {
+  const rating = lead.rawData.rating;
+  return typeof rating === 'number' ? rating : null;
+}
+
+function leadSearchQuery(lead: Lead): string {
+  return String(lead.rawData.searchQuery ?? '');
+}
+
+function leadSocialLinks(lead: Lead): Record<string, string> {
+  if (lead.source === 'linkedin' && lead.profileUrl) {
+    return { linkedin: lead.profileUrl };
+  }
+  const social = lead.rawData.socialLinks;
+  return social && typeof social === 'object' ? (social as Record<string, string>) : {};
+}
+
+function sourceTypeLabel(source: Lead['source']): string {
+  switch (source) {
+    case 'google_maps':
+      return 'Maps';
+    case 'linkedin':
+      return 'LinkedIn';
+    default: {
+      const exhaustive: never = source;
+      return exhaustive;
+    }
+  }
+}
+
 function RatingBadge({ rating }: { rating: number | null }) {
   if (rating === null) return <span className="text-[#d4d4d4]">—</span>;
   const color = rating >= 4.5 ? 'text-emerald-600' : rating >= 3.5 ? 'text-amber-500' : 'text-red-500';
@@ -89,22 +126,27 @@ export default function ResultsTable() {
     if (hasEmail && !l.email) return false;
     if (hasPhone && !l.phone) return false;
     if (hasWebsite && !l.website) return false;
-    if (highRating && (l.rating === null || l.rating < 4.0)) return false;
+    if (highRating) {
+      const rating = leadRating(l);
+      if (rating === null || rating < 4.0) return false;
+    }
     if (!search) return true;
     const q = search.toLowerCase();
     return (
-      l.companyName.toLowerCase().includes(q) ||
-      l.city.toLowerCase().includes(q) ||
-      l.country.toLowerCase().includes(q) ||
-      l.category.toLowerCase().includes(q) ||
-      l.searchQuery.toLowerCase().includes(q)
+      l.name.toLowerCase().includes(q) ||
+      l.location.toLowerCase().includes(q) ||
+      leadCategory(l).toLowerCase().includes(q) ||
+      leadSearchQuery(l).toLowerCase().includes(q)
     );
   });
 
   const withEmail = leads.filter((l) => l.email).length;
   const withPhone = leads.filter((l) => l.phone).length;
   const withWebsite = leads.filter((l) => l.website).length;
-  const highRatingCount = leads.filter((l) => l.rating !== null && l.rating >= 4.0).length;
+  const highRatingCount = leads.filter((l) => {
+    const rating = leadRating(l);
+    return rating !== null && rating >= 4.0;
+  }).length;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -135,7 +177,7 @@ export default function ResultsTable() {
         </div>
         <p className="text-base font-semibold text-[#171717] mb-1">No leads yet.</p>
         <p className="text-sm text-[#888888] mb-6 max-w-sm">
-          Run a search from the dashboard to start collecting business leads from Google Maps.
+          Run a search from the dashboard to start collecting leads.
         </p>
         <a
           href="/dashboard"
@@ -191,7 +233,7 @@ export default function ResultsTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#ebebeb] bg-[#fafafa]">
-                {['Company', 'Category', 'Rating', 'Phone', 'Email', 'Website', 'Location', 'Social', 'Source'].map((h) => (
+                {['Name', 'Type', 'Category', 'Rating', 'Phone', 'Email', 'Website', 'Location', 'Social', 'Profile'].map((h) => (
                   <th key={h} className="py-3 px-4 text-left text-[10px] font-medium text-[#888888] uppercase tracking-widest whitespace-nowrap font-mono">
                     {h}
                   </th>
@@ -201,24 +243,32 @@ export default function ResultsTable() {
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center text-sm text-[#888888]">
+                  <td colSpan={10} className="py-16 text-center text-sm text-[#888888]">
                     No leads match your current filters.
                   </td>
                 </tr>
               ) : (
-                paginated.map((lead, i) => (
+                paginated.map((lead, i) => {
+                  const category = leadCategory(lead);
+                  const rating = leadRating(lead);
+                  const socialLinks = leadSocialLinks(lead);
+
+                  return (
                   <tr
-                    key={lead.id}
+                    key={`${lead.source}-${lead.id}`}
                     className={`border-b border-[#ebebeb] hover:bg-[#fafafa] transition-colors ${i % 2 === 1 ? 'bg-[#fafafa]/50' : ''}`}
                   >
-                    <td className="py-3 px-4 font-medium text-[#171717] max-w-[180px] truncate" title={lead.companyName}>
-                      {lead.companyName || <span className="text-[#d4d4d4]">—</span>}
+                    <td className="py-3 px-4 font-medium text-[#171717] max-w-[180px] truncate" title={lead.name}>
+                      {lead.name || <span className="text-[#d4d4d4]">—</span>}
                     </td>
-                    <td className="py-3 px-4 text-[#888888] max-w-[130px] truncate text-xs" title={lead.category}>
-                      {lead.category || <span className="text-[#d4d4d4]">—</span>}
+                    <td className="py-3 px-4 text-[#888888] whitespace-nowrap text-xs">
+                      {sourceTypeLabel(lead.source)}
+                    </td>
+                    <td className="py-3 px-4 text-[#888888] max-w-[130px] truncate text-xs" title={category}>
+                      {category || <span className="text-[#d4d4d4]">—</span>}
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      <RatingBadge rating={lead.rating} />
+                      <RatingBadge rating={rating} />
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap text-xs">
                       {lead.phone ? (
@@ -242,23 +292,23 @@ export default function ResultsTable() {
                       ) : <span className="text-[#d4d4d4]">—</span>}
                     </td>
                     <td className="py-3 px-4 text-[#888888] whitespace-nowrap text-xs">
-                      {[lead.city, lead.country].filter(Boolean).join(', ') || <span className="text-[#d4d4d4]">—</span>}
+                      {lead.location || <span className="text-[#d4d4d4]">—</span>}
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1">
-                        <SocialIcon href={lead.socialLinks?.facebook}  label="facebook" />
-                        <SocialIcon href={lead.socialLinks?.twitter}   label="twitter" />
-                        <SocialIcon href={lead.socialLinks?.linkedin}  label="linkedin" />
-                        <SocialIcon href={lead.socialLinks?.instagram} label="instagram" />
-                        <SocialIcon href={lead.socialLinks?.youtube}   label="youtube" />
-                        {!Object.values(lead.socialLinks ?? {}).some(Boolean) && (
+                        <SocialIcon href={socialLinks.facebook}  label="facebook" />
+                        <SocialIcon href={socialLinks.twitter}   label="twitter" />
+                        <SocialIcon href={socialLinks.linkedin}  label="linkedin" />
+                        <SocialIcon href={socialLinks.instagram} label="instagram" />
+                        <SocialIcon href={socialLinks.youtube}   label="youtube" />
+                        {!Object.values(socialLinks).some(Boolean) && (
                           <span className="text-[#d4d4d4] text-xs">—</span>
                         )}
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      {lead.sourceUrl ? (
-                        <a href={lead.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-[#a1a1a1] hover:text-[#4d4d4d] transition-colors no-underline" title="View on Google Maps">
+                      {lead.profileUrl ? (
+                        <a href={lead.profileUrl} target="_blank" rel="noopener noreferrer" className="text-[#a1a1a1] hover:text-[#4d4d4d] transition-colors no-underline" title="Open profile">
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                             <polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
@@ -267,7 +317,8 @@ export default function ResultsTable() {
                       ) : <span className="text-[#d4d4d4] text-xs">—</span>}
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>

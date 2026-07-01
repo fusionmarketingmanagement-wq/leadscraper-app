@@ -1,23 +1,14 @@
 import type { Lead } from './types';
 
 const HEADERS = [
-  'Company Name',
-  'Category',
-  'Website',
-  'Phone',
+  'Source',
+  'Name',
   'Email',
-  'Address',
-  'City',
-  'Country',
-  'Rating',
-  'Facebook',
-  'Twitter / X',
-  'LinkedIn',
-  'Instagram',
-  'YouTube',
-  'Source URL',
+  'Phone',
+  'Website',
+  'Profile URL',
+  'Location',
   'Scraped At',
-  'Search Query',
 ];
 
 function esc(v: string | number | null | undefined): string {
@@ -31,23 +22,14 @@ function esc(v: string | number | null | undefined): string {
 export function leadsToCSV(leads: Lead[]): string {
   const rows = leads.map((l) =>
     [
-      esc(l.companyName),
-      esc(l.category),
-      esc(l.website),
-      esc(l.phone),
+      esc(l.source),
+      esc(l.name),
       esc(l.email),
-      esc(l.address),
-      esc(l.city),
-      esc(l.country),
-      l.rating !== null ? String(l.rating) : '',
-      esc(l.socialLinks?.facebook ?? ''),
-      esc(l.socialLinks?.twitter ?? ''),
-      esc(l.socialLinks?.linkedin ?? ''),
-      esc(l.socialLinks?.instagram ?? ''),
-      esc(l.socialLinks?.youtube ?? ''),
-      esc(l.sourceUrl),
+      esc(l.phone),
+      esc(l.website),
+      esc(l.profileUrl),
+      esc(l.location),
       esc(l.scrapedAt),
-      esc(l.searchQuery),
     ].join(',')
   );
 

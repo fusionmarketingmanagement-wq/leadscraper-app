@@ -1,7 +1,8 @@
-import type { ApifyRunResult, RunStatus } from './types';
+import type { ApifyRunResult, LinkedInScrapeInput, RunStatus } from './types';
 
 const BASE = 'https://api.apify.com/v2';
-const ACTOR_ID = 'compass~google-maps-extractor';
+const GOOGLE_MAPS_ACTOR_ID = 'compass~google-maps-extractor';
+const LINKEDIN_TASK_ID = 'fusion_marketing~linkedin-profile-search-task';
 
 interface ApifyRunData {
   id: string;
@@ -19,22 +20,15 @@ function parseRunPayload(json: unknown): ApifyRunData {
   return data;
 }
 
-export async function startScrape(
-  searchString: string,
-  maxResults: number,
-  language: string,
+async function startActorRun(
+  endpoint: string,
+  input: Record<string, unknown>,
   token: string
 ): Promise<ApifyRunResult> {
-  const url = `${BASE}/acts/${ACTOR_ID}/runs?token=${token}`;
-
-  const res = await fetch(url, {
+  const res = await fetch(`${endpoint}?token=${token}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      searchStringsArray: [searchString],
-      maxCrawledPlacesPerSearch: maxResults,
-      language,
-    }),
+    body: JSON.stringify(input),
   });
 
   if (!res.ok) {
@@ -48,6 +42,42 @@ export async function startScrape(
     datasetId: data.defaultDatasetId,
     status: data.status,
   };
+}
+
+export async function startScrape(
+  searchString: string,
+  maxResults: number,
+  language: string,
+  token: string
+): Promise<ApifyRunResult> {
+  return startActorRun(
+    `${BASE}/acts/${GOOGLE_MAPS_ACTOR_ID}/runs`,
+    {
+      searchStringsArray: [searchString],
+      maxCrawledPlacesPerSearch: maxResults,
+      language,
+    },
+    token
+  );
+}
+
+export async function startLinkedInScrape(
+  input: LinkedInScrapeInput,
+  token: string
+): Promise<ApifyRunResult> {
+  const body: Record<string, unknown> = {
+    profileScraperMode: input.profileScraperMode ?? 'Short',
+    maxItems: input.maxItems ?? 20,
+  };
+
+  if (input.searchQuery?.trim()) body.searchQuery = input.searchQuery.trim();
+  if (input.locations?.length) body.locations = input.locations.filter(Boolean);
+  if (input.currentCompanies?.length) body.currentCompanies = input.currentCompanies.filter(Boolean);
+  if (input.pastCompanies?.length) body.pastCompanies = input.pastCompanies.filter(Boolean);
+  if (input.schools?.length) body.schools = input.schools.filter(Boolean);
+  if (input.currentJobTitles?.length) body.currentJobTitles = input.currentJobTitles.filter(Boolean);
+
+  return startActorRun(`${BASE}/actor-tasks/${LINKEDIN_TASK_ID}/runs`, body, token);
 }
 
 export async function getRunStatus(runId: string, token: string): Promise<RunStatus> {

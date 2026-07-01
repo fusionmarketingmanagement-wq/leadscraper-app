@@ -3,7 +3,7 @@ import { createServerClient, parseCookieHeader, type CookieMethodsServer } from 
 import { getPublicSupabaseConfig } from './lib/env'
 
 const PROTECTED_PAGES = ['/dashboard', '/results', '/settings']
-const PROTECTED_API_PREFIXES = ['/api/scrape', '/api/leads', '/api/export', '/api/settings', '/api/status', '/api/collect']
+const PROTECTED_API_PREFIXES = ['/api/scrape', '/api/leads', '/api/export', '/api/settings', '/api/status', '/api/collect', '/api/searches']
 
 function isProtectedPage(pathname: string): boolean {
   return PROTECTED_PAGES.some(

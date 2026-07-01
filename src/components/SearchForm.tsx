@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { pollScrapeAndCollect } from '../lib/scrape-poll';
 
 type Status = 'idle' | 'scraping' | 'done' | 'error';
 
@@ -26,12 +27,6 @@ const statusMeta: Record<Status, { color: string; icon: string; bg: string; bord
 const inputClass =
   'w-full bg-white border border-[#ebebeb] text-[#171717] placeholder-[#888888] rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#171717] focus:ring-1 focus:ring-[#171717]/10 disabled:opacity-40 disabled:bg-[#fafafa] transition-all';
 const labelClass = 'block text-xs font-medium text-[#4d4d4d] mb-1.5';
-
-const TERMINAL_STATUSES = new Set(['SUCCEEDED', 'FAILED', 'ABORTED', 'TIMED-OUT']);
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 export default function SearchForm() {
   const [keyword, setKeyword] = useState('');
@@ -66,6 +61,7 @@ export default function SearchForm() {
       const startData = await startRes.json() as {
         runId?: string;
         datasetId?: string;
+        searchId?: string;
         query?: string;
         error?: string;
       };
@@ -74,65 +70,30 @@ export default function SearchForm() {
         throw new Error(startData.error ?? 'Failed to start scrape');
       }
 
-      const runId = startData.runId;
-      const datasetId = startData.datasetId;
-      const query = startData.query ?? searchString;
-
-      if (!runId || !datasetId) {
+      const { runId, datasetId, searchId, query } = startData;
+      if (!runId || !datasetId || !searchId) {
         throw new Error('Invalid scrape response from server');
       }
 
-      let runStatus = 'RUNNING';
-      let itemCount = 0;
+      const result = await pollScrapeAndCollect({
+        runId,
+        datasetId,
+        searchId,
+        source: 'google_maps',
+        query: query ?? searchString,
+        runningMessage: 'Scraping Google Maps...',
+        onProgress: setMessage,
+      });
 
-      while (!TERMINAL_STATUSES.has(runStatus)) {
-        await sleep(3000);
-        const statusRes = await fetch(`/api/status?runId=${encodeURIComponent(runId)}`);
-        const statusData = await statusRes.json() as {
-          status?: string;
-          itemCount?: number;
-          error?: string;
-        };
-
-        if (!statusRes.ok) {
-          throw new Error(statusData.error ?? 'Failed to check scrape status');
-        }
-
-        runStatus = statusData.status ?? 'RUNNING';
-        itemCount = statusData.itemCount ?? 0;
-        setMessage(
-          itemCount > 0
-            ? `Scraping Google Maps... ${itemCount} places found so far.`
-            : 'Scraping Google Maps... this may take 1–2 minutes, please wait.'
-        );
-      }
-
-      if (runStatus !== 'SUCCEEDED') {
-        throw new Error(`Scrape ${runStatus.toLowerCase().replace('_', ' ')}`);
-      }
-
-      setMessage('Saving leads to your database...');
-
-      const collectRes = await fetch(
-        `/api/collect?datasetId=${encodeURIComponent(datasetId)}&query=${encodeURIComponent(query)}`
-      );
-      const collectData = await collectRes.json() as { count?: number; total?: number; error?: string };
-
-      if (!collectRes.ok) {
-        throw new Error(collectData.error ?? 'Failed to save leads');
-      }
-
-      const saved = collectData.count ?? 0;
-      const total = collectData.total ?? 0;
-      setCount(saved);
+      setCount(result.saved);
       setStatus('done');
 
-      if (total === 0) {
+      if (result.total === 0) {
         setMessage('No results found. Try a different keyword or location.');
-      } else if (saved === 0) {
-        setMessage(`${total} leads found, but all were already in your database.`);
+      } else if (result.saved === 0) {
+        setMessage(`${result.total} leads found, but all were already in your database.`);
       } else {
-        setMessage(`Saved ${saved} new leads. Redirecting to results…`);
+        setMessage(`Saved ${result.saved} new leads. Redirecting to results…`);
         setTimeout(() => { window.location.href = '/results'; }, 1500);
       }
     } catch (err) {
@@ -144,7 +105,6 @@ export default function SearchForm() {
   return (
     <div className="space-y-5">
       <form onSubmit={(e) => { e.preventDefault(); void handleSubmit(); }} className="space-y-5">
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>
