@@ -42,7 +42,7 @@ export default function DashboardQuickActions() {
           Export leads to CSV
         </a>
         <a
-          href="/settings"
+          href="/dashboard/settings"
           className="flex items-center gap-2.5 py-2 px-2 rounded-md text-xs text-[#888888] hover:text-[#171717] hover:bg-[#fafafa] transition-all no-underline group"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#a1a1a1] group-hover:text-[#4d4d4d] transition-colors">

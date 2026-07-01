@@ -1,0 +1,14 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import SettingsPage from '../../components/settings/SettingsPage';
+
+const tabParam = Astro.url.searchParams.get('tab');
+const initialTab =
+  tabParam === 'billing' || tabParam === 'integrations' || tabParam === 'team'
+    ? tabParam
+    : 'general';
+---
+
+<DashboardLayout title="Settings" pageTitle="Settings">
+  <SettingsPage client:load initialTab={initialTab} />
+</DashboardLayout>

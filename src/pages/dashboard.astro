@@ -1,35 +1,11 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Navbar from '../components/Navbar.astro';
-import DashboardOverview from '../components/DashboardOverview';
-import DashboardSourcePicker from '../components/DashboardSourcePicker';
-import RecentSearches from '../components/RecentSearches';
+import DashboardLayout from '../layouts/DashboardLayout.astro';
+import OverviewDashboard from '../components/overview/OverviewDashboard';
 
 const user = Astro.locals.user;
 const displayName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'there';
 ---
 
-<Layout title="Dashboard">
-  <Navbar variant="app" />
-
-  <main class="mx-auto max-w-5xl px-6 py-10">
-    <div class="mb-8">
-      <div class="flex items-center gap-1.5 text-xs text-[#a1a1a1] mb-3 font-mono">
-        <a href="/" class="hover:text-[#4d4d4d] transition-colors no-underline">Home</a>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-[#d4d4d4]"><path d="m9 18 6-6-6-6"/></svg>
-        <span class="text-[#888888]">Dashboard</span>
-      </div>
-      <h1 class="text-2xl font-semibold text-[#171717] tracking-tight mb-1" style="letter-spacing: -0.6px;">Lead Sources</h1>
-      <p class="text-[#888888] text-sm">Welcome back, {displayName}. Choose a source to start a new search.</p>
-    </div>
-
-    <DashboardOverview client:load />
-
-    <div class="mb-8">
-      <h2 class="text-sm font-semibold text-[#171717] mb-3">Choose a source</h2>
-      <DashboardSourcePicker client:load />
-    </div>
-
-    <RecentSearches client:load />
-  </main>
-</Layout>
+<DashboardLayout title="Dashboard" pageTitle="Overview">
+  <OverviewDashboard client:load userName={displayName} />
+</DashboardLayout>

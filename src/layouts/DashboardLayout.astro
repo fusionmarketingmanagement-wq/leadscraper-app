@@ -1,0 +1,31 @@
+---
+import Layout from './Layout.astro';
+import AppShell from '../components/shell/AppShell';
+
+interface Props {
+  title?: string;
+  pageTitle?: string;
+}
+
+const { title = 'Dashboard', pageTitle } = Astro.props;
+
+const user = Astro.locals.user;
+const supabaseConfig = Astro.locals.supabaseConfig;
+const displayName =
+  user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User';
+const pathname = Astro.url.pathname;
+---
+
+<Layout title={title}>
+  <AppShell
+    client:load
+    pathname={pathname}
+    userName={displayName}
+    userEmail={user?.email}
+    supabaseUrl={supabaseConfig.url}
+    supabaseKey={supabaseConfig.key}
+    pageTitle={pageTitle}
+  >
+    <slot />
+  </AppShell>
+</Layout>

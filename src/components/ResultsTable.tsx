@@ -180,7 +180,7 @@ export default function ResultsTable() {
           Run a search from the dashboard to start collecting leads.
         </p>
         <a
-          href="/dashboard"
+          href="/dashboard/leads"
           className="inline-flex items-center gap-2 px-5 h-9 rounded-md bg-[#171717] text-white text-sm font-medium hover:bg-[#2d2d2d] transition-all no-underline"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>

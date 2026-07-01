@@ -1,0 +1,8 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import ConversationsPage from '../../components/conversations/ConversationsPage';
+---
+
+<DashboardLayout title="Conversations" pageTitle="Live Conversations">
+  <ConversationsPage client:load />
+</DashboardLayout>
